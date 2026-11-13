@@ -20,23 +20,24 @@ def load_env(path=ROOT / ".env"):
         os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
 
 
-def cfg():
+def cfg(need_account=True):
     load_env()
     c = {k: os.environ.get(k, "") for k in
          ("META_ACCESS_TOKEN", "META_AD_ACCOUNT_ID", "META_PAGE_ID", "META_API_VERSION")}
-    missing = [k for k in ("META_ACCESS_TOKEN", "META_AD_ACCOUNT_ID") if not c[k] or c[k] == "act_"]
-    if missing:
-        raise SystemExit("Isi dulu dalam .env: " + ", ".join(missing))
-    if not c["META_AD_ACCOUNT_ID"].startswith("act_"):
+    # Token kosong / "proxy-injected" = proxy sesi cloud suntik header Authorization (token tak pernah ada dalam fail)
+    if need_account and (not c["META_AD_ACCOUNT_ID"] or c["META_AD_ACCOUNT_ID"] == "act_"):
+        raise SystemExit("Isi META_AD_ACCOUNT_ID dalam .env (jalankan scripts/test_connection.py untuk senarai akaun).")
+    if c["META_AD_ACCOUNT_ID"] and not c["META_AD_ACCOUNT_ID"].startswith("act_"):
         c["META_AD_ACCOUNT_ID"] = "act_" + c["META_AD_ACCOUNT_ID"]
     c["META_API_VERSION"] = c["META_API_VERSION"] or "v23.0"
     return c
 
 
 def get(path, params=None):
-    c = cfg()
+    c = cfg(need_account=False)
     p = dict(params or {})
-    p["access_token"] = c["META_ACCESS_TOKEN"]
+    if c["META_ACCESS_TOKEN"] and c["META_ACCESS_TOKEN"] != "proxy-injected":
+        p["access_token"] = c["META_ACCESS_TOKEN"]
     url = f"https://graph.facebook.com/{c['META_API_VERSION']}/{path}?{urllib.parse.urlencode(p)}"
     try:
         with urllib.request.urlopen(url, timeout=60) as r:

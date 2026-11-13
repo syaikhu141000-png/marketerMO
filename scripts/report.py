@@ -9,7 +9,7 @@ RESULT_TYPES = {
     "onsite_conversion.lead_grouped": "Lead",
     "offsite_conversion.fb_pixel_lead": "Lead",
     "onsite_conversion.messaging_conversation_started_7d": "Chat",
-    "offsite_conversion.fb_pixel_custom.WhatsFormSubmit": "Form",
+    "offsite_conversion.fb_pixel_custom": "Form",
 }
 
 rows = get_all(f"{cfg()['META_AD_ACCOUNT_ID']}/insights", {
