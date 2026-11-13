@@ -1,0 +1,27 @@
+name: Refresh MO2 dashboard data
+on:
+  schedule:
+    - cron: "23 0 * * *"   # setiap hari 8:23 pagi waktu Malaysia
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cipta .env dari GitHub Secrets (token tak pernah masuk repo)
+        run: |
+          {
+            echo "META_ACCESS_TOKEN=${{ secrets.META_ACCESS_TOKEN }}"
+            echo "META_AD_ACCOUNT_ID=${{ secrets.META_AD_ACCOUNT_ID }}"
+            echo "META_API_VERSION=${{ vars.META_API_VERSION || 'v23.0' }}"
+          } > .env
+      - run: python3 scripts/build_dashboard_data.py
+      - name: Commit data.json
+        run: |
+          rm -f .env
+          git config user.name "dashboard-bot"
+          git config user.email "dashboard-bot@users.noreply.github.com"
+          git add dashboard/data.json
+          git diff --cached --quiet || (git commit -m "Refresh dashboard data" && git push)
