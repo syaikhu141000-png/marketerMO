@@ -1,4 +1,4 @@
-"""Jana dashboard/data.json untuk Minda Optima 2 dari Meta Marketing API.
+"""Jana docs/data.json untuk Minda Optima 2 dari Meta Marketing API.
 Guna: python3 scripts/build_dashboard_data.py
 Hasil = Lead + WhatsFormSubmit. Chat WhatsApp TIDAK dikira. Booking/enrollment tiada dalam Meta."""
 import json
@@ -61,6 +61,6 @@ out = {
              "note": "Hasil = Lead + WhatsFormSubmit. Chat WhatsApp tidak dikira. Data sehingga semalam."},
     "daily": daily, "campaigns": campaigns, "ads": ads,
 }
-dest = ROOT / "dashboard" / "data.json"
+dest = ROOT / "docs" / "data.json"
 dest.write_text(json.dumps(out, ensure_ascii=False, indent=1))
 print(f"OK {dest.relative_to(ROOT)}: {len(daily)} hari, {len(campaigns)} kempen, {len(ads)} ad")

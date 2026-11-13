@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generated_at": "2026-11-13T18:24:55+08:00",
+  "generated_at": "2026-11-13T19:38:21+08:00",
   "account_name": "Minda Optima 2",
   "currency": "MYR",
   "timezone": "Asia/Kuala_Lumpur",
@@ -271,8 +271,8 @@
   },
   {
    "date": "2026-11-12",
-   "spend": 617.13,
-   "impressions": 37786,
+   "spend": 617.14,
+   "impressions": 37788,
    "clicks": 1030,
    "lead": 1,
    "form": 21,
@@ -351,8 +351,8 @@
    "status": "ACTIVE",
    "objective": "OUTCOME_ENGAGEMENT",
    "daily_budget": null,
-   "spend": 500.05,
-   "impressions": 77888,
+   "spend": 500.07,
+   "impressions": 77891,
    "clicks": 4137,
    "lead": 0,
    "form": 0,
@@ -942,8 +942,8 @@
   {
    "name": "FACEBOOK - AIDA CHECKLIST DARJAH 1 - 1962542961477707",
    "campaign": "191026 / AWARENESS / BROAD / FB & IG",
-   "spend": 120.63,
-   "impressions": 20819,
+   "spend": 120.64,
+   "impressions": 20821,
    "clicks": 1804,
    "lead": 0,
    "form": 0,
