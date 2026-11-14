@@ -3,6 +3,7 @@
 //  GET  /                -> dashboard (HTML, rupa sama Dashboard-MO-v3)
 //  GET  /data.json       -> data dashboard terkini (dari KV)
 //  GET  /api/data        -> sama, dengan CORS (untuk staff portal / sistem lain)
+//  GET  /api/daily       -> data harian setiap ad (untuk pemilih tarikh / sistem lain)
 //  GET  /api/status      -> status run terakhir (bila, berjaya/gagal, berapa panggilan API)
 //  GET  /api/notes       -> semua notes/remark { key: [ {ts, text}, ... ] }
 //  POST /api/notes       -> tambah satu note  body: {"key":"campaign:NAMA","text":"..."}
@@ -72,6 +73,11 @@ export default {
     if (p === "/data.json" || p === "/api/data") {
       const d = await env.KV.get("data");
       if (!d) return json({ error: "Data belum dijana. Tunggu cron 5:30 pagi atau jalankan /api/refresh." }, 503);
+      return new Response(d, { headers: { ...JSON_HEADERS, ...CORS } });
+    }
+    if (p === "/api/daily") {
+      const d = await env.KV.get("daily");
+      if (!d) return json({ error: "Data harian belum dijana." }, 503);
       return new Response(d, { headers: { ...JSON_HEADERS, ...CORS } });
     }
     if (p === "/api/status") return json(JSON.parse((await env.KV.get("last_run")) || '{"ok":null,"note":"belum pernah run"}'));

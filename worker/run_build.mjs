@@ -4,7 +4,7 @@
 // Env wajib: META_ACCESS_TOKEN, META_AD_ACCOUNT_ID, CLOUDFLARE_API_TOKEN, CF_ACCOUNT_ID, CF_KV_NAMESPACE_ID
 // Env pilihan: META_API_VERSION (default v23.0)
 import { writeFileSync, mkdirSync } from "node:fs";
-import { buildData } from "./src/build.js";
+import { buildData, buildDaily } from "./src/build.js";
 
 const E = process.env;
 for (const k of ["META_ACCESS_TOKEN", "META_AD_ACCOUNT_ID", "CLOUDFLARE_API_TOKEN", "CF_ACCOUNT_ID", "CF_KV_NAMESPACE_ID"])
@@ -43,10 +43,15 @@ try {
   const day = out.data.accounts.mo2._meta.date_windows.yesterday;
   await kvPut("data", body);
   await kvPut(`history:${day}`, body, 60 * 60 * 24 * 400);
-  status = { ok: true, trigger: "github-actions", started_at: startedAt, finished_at: new Date().toISOString(), data_until: day, ...out.stats };
+  // data harian untuk pemilih tarikh
+  const prevDailyRaw = await kvGet("daily");
+  const daily = await buildDaily(env, prevDailyRaw ? JSON.parse(prevDailyRaw) : null);
+  await kvPut("daily", JSON.stringify(daily));
+  out.stats.daily_rows = daily.stats.rows;
+  status = { ok: true, trigger: process.env.RUN_TRIGGER || "scheduled", started_at: startedAt, finished_at: new Date().toISOString(), data_until: day, ...out.stats };
   console.log("Berjaya:", JSON.stringify(status));
 } catch (e) {
-  status = { ok: false, trigger: "github-actions", started_at: startedAt, finished_at: new Date().toISOString(), error: String(e.message || e) };
+  status = { ok: false, trigger: process.env.RUN_TRIGGER || "scheduled", started_at: startedAt, finished_at: new Date().toISOString(), error: String(e.message || e) };
   console.error("GAGAL:", status.error);
 }
 await kvPut("last_run", JSON.stringify(status)).catch((e) => console.error(e.message));

@@ -437,3 +437,49 @@ export async function buildData(env, prevData) {
     stats: { meta_calls: meta.calls(), campaigns: campRows.length, adsets: adsetRows.length, ads_14D: ads14.length, flags: flags.length },
   };
 }
+
+// ---------------- Data harian (untuk pemilih tarikh macam Ads Manager) ----------------
+// Simpan baris harian setiap ad: [tarikh, ad_id, spend, impressions, link_click, whatsform, website_lead]
+// Run pertama tarik 90 hari; run seterusnya tarik semula 28 hari terakhir (Meta kemas kini atribusi sehingga 28 hari)
+// dan gabung dengan sejarah sedia ada (simpan maksimum 400 hari).
+export async function buildDaily(env, prevDaily) {
+  const meta = metaClient(env);
+  let acc = env.META_AD_ACCOUNT_ID || "";
+  if (!acc.startsWith("act_")) acc = "act_" + acc;
+  const today = mytToday();
+  const Y = addDays(today, -1);
+  const hasPrev = prevDaily && Array.isArray(prevDaily.rows) && prevDaily.rows.length;
+  const since = addDays(Y, hasPrev ? -27 : -89);
+  const [campList, adsetList, adList, rows] = await Promise.all([
+    meta.all(`${acc}/campaigns`, { fields: "id,name,effective_status,objective,created_time", limit: "200" }),
+    meta.all(`${acc}/adsets`, { fields: "id,name,campaign_id,effective_status,daily_budget,created_time", limit: "500" }),
+    meta.all(`${acc}/ads`, { fields: "id,name,adset_id,campaign_id,effective_status,created_time", limit: "500" }),
+    meta.all(`${acc}/insights`, {
+      level: "ad", time_increment: "1", time_range: JSON.stringify({ since: iso(since), until: iso(Y) }),
+      fields: "ad_id,spend,impressions,inline_link_clicks,actions", limit: "500",
+    }),
+  ]);
+  const fresh = rows.map((r) => {
+    const s = stat(r);
+    return [r.date_start, r.ad_id, r2(s.spend), s.impressions, s.link_click, s.form, s.web];
+  }).filter((r) => r[2] > 0 || r[3] > 0 || r[5] > 0 || r[6] > 0);
+  const cutoff = iso(addDays(Y, -399));
+  const keep = hasPrev ? prevDaily.rows.filter((r) => r[0] < iso(since) && r[0] >= cutoff) : [];
+  const all = [...keep, ...fresh].sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
+
+  // metadata entiti: gabung dgn lama supaya ad/campaign yang dah dipadam masih ada nama
+  const pm = (hasPrev && prevDaily) || {};
+  const campaigns = { ...(pm.campaigns || {}) }, adsets = { ...(pm.adsets || {}) }, ads = { ...(pm.ads || {}) };
+  for (const c of campList) campaigns[c.id] = { n: c.name, st: c.effective_status, ct: (c.created_time || "").slice(0, 10), aw: isAwareness(c.name, c.objective) ? 1 : 0 };
+  for (const a of adsetList) adsets[a.id] = { n: a.name, c: a.campaign_id, st: a.effective_status, b: a.daily_budget ? r2(Number(a.daily_budget) / 100) : null, ct: (a.created_time || "").slice(0, 10) };
+  for (const a of adList) ads[a.id] = { n: a.name, s: a.adset_id, c: a.campaign_id, st: a.effective_status, ct: (a.created_time || "").slice(0, 10) };
+  const generatedAt = new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 19) + "+08:00";
+  return {
+    generated_at: generatedAt,
+    since: all.length ? all[0][0] : iso(since), until: iso(Y),
+    columns: ["date", "ad_id", "spend", "impressions", "link_click", "whatsform", "website_lead"],
+    note: "Baris harian setiap ad. Lead = whatsform + website_lead (chat tidak dikira). Kempen aw=1 ialah AWARENESS.",
+    campaigns, adsets, ads, rows: all,
+    stats: { meta_calls: meta.calls(), rows: all.length, refreshed_from: iso(since) },
+  };
+}
