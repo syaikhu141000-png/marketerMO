@@ -1,11 +1,11 @@
-# MO2 Monitor (Minda Optima 2)
+# Dashboard MO2 (Minda Optima 2 — Pantas Baca Daily Monitoring)
 
-Dashboard baru, berasingan dari Dashboard-MO-v3. Data terus dari Meta Marketing API.
+Salinan Dashboard-MO-v3 (10 seksyen + Gabungan), khusus Minda Optima 2, data terus dari Meta Marketing API.
+Dashboard lama tidak disentuh: remark & checklist disimpan berasingan (tidak sync ke Firebase dashboard lama).
 
-- `index.html` baca `data.json` + `config.json` (fail statik, tiada token dalam pelayar).
-- `scripts/build_dashboard_data.py` jana `data.json` (30 hari harian, kempen & ad 7 hari).
-- Hasil = Lead + WhatsFormSubmit. Chat WhatsApp tidak dikira.
-- Kemas kini manual: `python3 scripts/build_dashboard_data.py` kemudian commit `docs/data.json`.
-- Kemas kini harian automatik: `.github/workflows/refresh-dashboard.yml`. Perlu GitHub Secrets
-  `META_ACCESS_TOKEN` dan `META_AD_ACCOUNT_ID` (Settings > Secrets and variables > Actions).
-- Buka melalui http(s) (GitHub Pages). Double-click fail tidak berfungsi kerana `fetch()`.
+- `index.html` — dashboard (baca `data.json`).
+- `data.json` — dijana oleh `scripts/build_dashboard_data.py`.
+- Lead = WhatsFormSubmit + Website leads. Chat WhatsApp tidak dikira. AWARENESS dikecualikan dari CPL.
+- Kemas kini automatik setiap hari 8:23 pagi (MYT) oleh `.github/workflows/refresh-dashboard.yml`
+  (perlu GitHub Secrets `META_ACCESS_TOKEN` dan `META_AD_ACCOUNT_ID`).
+- Kemas kini manual: Actions → Refresh MO2 dashboard data → Run workflow.

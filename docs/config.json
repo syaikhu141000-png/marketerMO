@@ -1,6 +1,0 @@
-{
-  "cpl_good": 15,
-  "cpl_max": 30,
-  "waste_multiplier": 3,
-  "_nota": "cpl_good/cpl_max ialah garis rujukan (sama dengan dashboard lama). Tukar ikut max CPL sebenar. Ad dengan spend 7 hari > waste_multiplier x cpl_max dan 0 hasil ditanda Pembazir."
-}

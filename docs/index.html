@@ -1,244 +1,1693 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ms">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MO2 Monitor</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Minda Optima 2 — Pantas Baca Daily Monitoring</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CjxyZWN0IHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgcng9IjE0IiBmaWxsPSIjMGYxNDFhIi8+CjxyZWN0IHg9IjMiIHk9IjMiIHdpZHRoPSI1OCIgaGVpZ2h0PSI1OCIgcng9IjExIiBmaWxsPSIjNGRhM2ZmIi8+Cjx0ZXh0IHg9IjMyIiB5PSI0MiIgZm9udC1mYW1pbHk9InN5c3RlbS11aSxTZWdvZSBVSSxSb2JvdG8sQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyNiIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iI2ZmZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+TU88L3RleHQ+Cjwvc3ZnPg=="/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-:root{
-  --bg:#f5f6f8; --card:#fff; --ink:#14181f; --mute:#667085; --line:#e4e7ec;
-  --accent:#2563eb; --good:#16a34a; --warn:#d97706; --bad:#dc2626;
-  --good-bg:#e8f7ee; --warn-bg:#fdf1de; --bad-bg:#fdeaea; --chip:#eef1f6;
-}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0d1117; --card:#161b22; --ink:#e6edf3; --mute:#8b949e; --line:#262d36;
-  --accent:#58a6ff; --good:#3fb950; --warn:#e3a008; --bad:#f85149;
-  --good-bg:#12261a; --warn-bg:#2a2110; --bad-bg:#2d1517; --chip:#1f2630;}}
-:root[data-theme="dark"]{
-  --bg:#0d1117; --card:#161b22; --ink:#e6edf3; --mute:#8b949e; --line:#262d36;
-  --accent:#58a6ff; --good:#3fb950; --warn:#e3a008; --bad:#f85149;
-  --good-bg:#12261a; --warn-bg:#2a2110; --bad-bg:#2d1517; --chip:#1f2630;}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 48px}
-header{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;justify-content:space-between;margin-bottom:18px}
-h1{font-size:1.35rem;margin:0}
-.sub{color:var(--mute);font-size:.85rem;margin-top:2px}
-.btns{display:flex;gap:8px;flex-wrap:wrap}
-button,select,input{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 12px}
-button{cursor:pointer}
-button:hover{border-color:var(--accent)}
-.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
-.tabs button.on{background:var(--accent);border-color:var(--accent);color:#fff}
-.grid{display:grid;gap:12px}
-.kpis{grid-template-columns:repeat(auto-fit,minmax(170px,1fr));margin-bottom:14px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
-.kpi .lbl{color:var(--mute);font-size:.78rem;text-transform:uppercase;letter-spacing:.04em}
-.kpi .val{font-size:1.55rem;font-weight:700;margin:2px 0;font-variant-numeric:tabular-nums}
-.delta{font-size:.8rem;font-weight:600}
-.delta.good{color:var(--good)} .delta.bad{color:var(--bad)} .delta.flat{color:var(--mute)}
-h2{font-size:1rem;margin:0 0 10px}
-.two{grid-template-columns:1fr 1fr}
-@media(max-width:820px){.two{grid-template-columns:1fr}}
-.chartbox{position:relative;height:260px}
-.flags{margin-bottom:14px}
-.flag{display:flex;gap:10px;padding:9px 12px;border-radius:8px;margin-bottom:8px;font-size:.9rem;align-items:flex-start}
-.flag.bad{background:var(--bad-bg)} .flag.warn{background:var(--warn-bg)} .flag.good{background:var(--good-bg)}
-.flag b{white-space:nowrap}
-.tbl{overflow-x:auto}
-table{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums}
-th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
-th:first-child,td:first-child{text-align:left;white-space:normal;min-width:240px;max-width:420px}
-th{color:var(--mute);font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.03em;position:sticky;top:0;background:var(--card)}
-.badge{display:inline-block;padding:1px 8px;border-radius:99px;font-size:.74rem;font-weight:600;background:var(--chip)}
-.badge.good{background:var(--good-bg);color:var(--good)} .badge.warn{background:var(--warn-bg);color:var(--warn)} .badge.bad{background:var(--bad-bg);color:var(--bad)}
-.tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
-.tools input{flex:1;min-width:160px}
-.note{color:var(--mute);font-size:.8rem;margin-top:18px}
-.err{padding:16px;border-radius:10px;background:var(--bad-bg);color:var(--bad)}
-section{margin-bottom:14px}
-@media(max-width:560px){.flag{flex-direction:column;gap:2px}.kpi .val{font-size:1.3rem}}
-.more{margin-top:10px}
+  :root{
+    --bg:#0f141a; --bg2:#161d26; --card:#1b232e; --card2:#212b38;
+    --border:#2b3643; --text:#e6edf3; --muted:#9aa7b4; --accent:#4da3ff;
+    --green:#4CAF50; --yellow:#FFC107; --red:#F44336; --na:#78909C;
+    --shadow:0 1px 3px rgba(0,0,0,.4);
+  }
+  :root[data-theme="light"]{
+    --bg:#eef1f4; --bg2:#ffffff; --card:#ffffff; --card2:#f6f8fa;
+    --border:#d9e0e7; --text:#1a2027; --muted:#5b6672; --accent:#1769c2;
+    --shadow:0 1px 3px rgba(0,0,0,.10);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-size:15px; line-height:1.5;
+  }
+  a{color:var(--accent);text-decoration:none}
+  h1,h2,h3{margin:0 0 .3em}
+  h2{font-size:1.15rem}
+  .wrap{max-width:1280px;margin:0 auto;padding:0 16px 80px}
+
+  /* Header */
+  header{
+    background:var(--bg2);border-bottom:1px solid var(--border);
+    padding:14px 16px;position:sticky;top:0;z-index:50;
+  }
+  .head-row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+  .head-title{font-size:1.15rem;font-weight:700}
+  .head-sub{color:var(--muted);font-size:.82rem;margin-top:2px}
+  .btns{display:flex;gap:8px;flex-wrap:wrap}
+  button.act{
+    background:var(--card);color:var(--text);border:1px solid var(--border);
+    border-radius:8px;padding:8px 12px;font-size:.85rem;cursor:pointer;font-weight:600;
+  }
+  button.act:hover{border-color:var(--accent);color:var(--accent)}
+  button.act.btn-export{
+    background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700;
+  }
+  button.act.btn-export:hover{filter:brightness(1.08);color:#fff}
+  button.act.btn-export:disabled{opacity:.6;cursor:progress}
+  #refreshMsg{font-size:.8rem;color:var(--muted);align-self:center}
+
+  /* Section tab nav */
+  nav.secnav{
+    max-width:1280px;margin:10px auto 0;display:flex;gap:6px;overflow-x:auto;
+    padding-bottom:4px;
+  }
+  nav.secnav button{
+    white-space:nowrap;background:var(--card);border:1px solid var(--border);
+    border-radius:999px;padding:7px 14px;font-size:.8rem;color:var(--muted);font-weight:700;
+    cursor:pointer;transition:background .15s,color .15s,border-color .15s;
+  }
+  nav.secnav button:hover{color:var(--accent);border-color:var(--accent)}
+  nav.secnav button.active{
+    background:var(--accent);color:#fff;border-color:var(--accent);
+  }
+
+  /* Account tab nav */
+  nav.acctnav{max-width:1280px;margin:12px auto 0;display:flex;gap:8px;overflow-x:auto;padding-bottom:2px}
+  nav.acctnav button{
+    white-space:nowrap;background:var(--card2);border:2px solid var(--border);
+    border-radius:10px;padding:8px 16px;font-size:.85rem;color:var(--text);font-weight:800;
+    cursor:pointer;transition:background .15s,color .15s,border-color .15s;
+  }
+  nav.acctnav button:hover{border-color:var(--accent)}
+  nav.acctnav button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  nav.acctnav button .acct-miss{font-weight:600;opacity:.7;font-size:.72rem}
+  tr.acct-row{cursor:pointer}
+  tr.acct-row:hover td{background:var(--card2)}
+
+  /* Sections */
+  @keyframes secIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  section.sec{
+    background:var(--card);border:1px solid var(--border);border-radius:12px;
+    padding:18px;margin-top:18px;box-shadow:var(--shadow);
+    animation:secIn .22s ease both;
+  }
+  section.sec[hidden]{display:none !important}
+
+  /* While exporting a section to PDF: expand tables fully, freeze animation */
+  body.exporting section.sec{animation:none !important;box-shadow:none;margin:0}
+  body.exporting .tablewrap{overflow:visible !important;border-radius:0}
+  body.exporting th{position:static !important}
+  .sec-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+  .sec-num{
+    background:var(--accent);color:#fff;border-radius:6px;font-size:.72rem;font-weight:800;
+    padding:2px 7px;letter-spacing:.5px;
+  }
+  .sec-purpose{color:var(--muted);font-size:.85rem;margin-bottom:12px}
+  .note{color:var(--muted);font-size:.8rem;margin-top:8px}
+
+  /* Cards grid */
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+  .kpi{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+  .kpi .label{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+  .kpi .val{font-size:1.5rem;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}
+  .kpi .sub{font-size:.75rem;color:var(--muted);margin-top:2px}
+
+  /* Budget bar */
+  .budgetbar{position:relative;height:34px;background:var(--card2);border:1px solid var(--border);border-radius:8px;margin:14px 0 6px;overflow:hidden}
+  .budgetbar .fill{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#2e7d32,#4CAF50);opacity:.85}
+  .budgetbar .tick{position:absolute;top:0;bottom:0;width:2px;background:var(--text);opacity:.5}
+  .budgetbar .tick-lbl{position:absolute;top:100%;font-size:.68rem;color:var(--muted);transform:translateX(-50%);margin-top:2px;white-space:nowrap}
+
+  /* Tables */
+  .tablewrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px;margin-top:8px}
+  table{border-collapse:collapse;width:100%;font-size:.83rem}
+  th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
+  th{background:var(--card2);color:var(--muted);font-size:.74rem;text-transform:uppercase;letter-spacing:.4px;position:sticky;top:0;cursor:pointer;user-select:none}
+  th.no-sort{cursor:default}
+  th .arrow{opacity:.4;font-size:.7rem}
+  th.sorted .arrow{opacity:1;color:var(--accent)}
+  tbody tr:hover{background:var(--card2)}
+  td.num{text-align:right;font-variant-numeric:tabular-nums}
+  td.wrap-cell{white-space:normal;min-width:220px}
+  .metricname{font-weight:700}
+
+  /* Traffic light */
+  .tl{display:inline-flex;align-items:center;gap:5px;font-weight:700;font-size:.78rem;padding:2px 8px;border-radius:999px}
+  .tl .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+  .tl.green{background:rgba(76,175,80,.15);color:var(--green)} .tl.green .dot{background:var(--green)}
+  .tl.yellow{background:rgba(255,193,7,.15);color:var(--yellow)} .tl.yellow .dot{background:var(--yellow)}
+  .tl.red{background:rgba(244,67,54,.15);color:var(--red)} .tl.red .dot{background:var(--red)}
+  .tl.na{background:rgba(120,144,156,.15);color:var(--na)} .tl.na .dot{background:var(--na)}
+
+  .cpl-g{color:var(--green);font-weight:700}
+  .cpl-y{color:var(--yellow);font-weight:700}
+  .cpl-r{color:var(--red);font-weight:700}
+
+  .trend-up{color:var(--red)} .trend-down{color:var(--green)} .trend-flat{color:var(--muted)}
+
+  .badge{display:inline-block;font-size:.7rem;font-weight:800;padding:2px 7px;border-radius:6px;letter-spacing:.4px}
+  .badge.code{background:var(--accent);color:#fff}
+  .badge.p-high{background:var(--red);color:#fff}
+  .badge.p-med{background:var(--yellow);color:#20130b}
+  .badge.p-low{background:var(--na);color:#fff}
+  .badge.approval{background:rgba(244,67,54,.15);color:var(--red);border:1px solid var(--red)}
+  .badge.auto{background:rgba(76,175,80,.15);color:var(--green);border:1px solid var(--green)}
+
+  /* Flag cards */
+  .flag{border-left:4px solid var(--na);background:var(--card2);border-radius:8px;padding:12px 14px;margin-top:10px}
+  .flag.p1{border-left-color:var(--red)}
+  .flag.p2{border-left-color:var(--yellow)}
+  .flag.p3{border-left-color:var(--na)}
+  .flag .f-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:4px}
+  .flag .f-entity{font-weight:700}
+  .flag .f-issue{font-size:.87rem;margin:4px 0}
+  .flag .f-ev{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+  .chip{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:2px 7px;font-size:.72rem;color:var(--muted);font-variant-numeric:tabular-nums}
+  .flag .f-act{font-size:.85rem;color:var(--text);margin-top:4px}
+  .flag .f-act b{color:var(--accent)}
+
+  /* Diagnostic cards */
+  .diag{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:10px}
+  .diag .d-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .diag .d-diag{font-weight:700;margin:6px 0 2px}
+  .diag .d-line{font-size:.85rem;margin:3px 0}
+  .diag .d-line .k{color:var(--muted);text-transform:uppercase;font-size:.68rem;letter-spacing:.4px;margin-right:6px}
+
+  /* Checklist */
+  .progress{height:12px;background:var(--card2);border:1px solid var(--border);border-radius:999px;overflow:hidden;margin:6px 0 14px}
+  .progress .p-fill{height:100%;background:var(--green);width:0;transition:width .3s}
+  .chk-row{display:flex;gap:10px;align-items:flex-start;padding:10px;border:1px solid var(--border);border-radius:8px;margin-top:8px;background:var(--card2)}
+  .chk-row input[type=checkbox]{width:20px;height:20px;margin-top:1px;cursor:pointer;flex:none}
+  .chk-row.done .chk-main{opacity:.55;text-decoration:line-through}
+  .chk-main{flex:1;min-width:0}
+  .chk-act{font-weight:600;font-size:.9rem}
+  .chk-reason{font-size:.78rem;color:var(--muted);margin-top:2px}
+  .chk-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:5px;align-items:center}
+
+  .filterbtns{display:flex;gap:6px;margin:10px 0 2px;flex-wrap:wrap}
+  .filterbtns button{background:var(--card2);border:1px solid var(--border);color:var(--muted);border-radius:999px;padding:4px 12px;font-size:.78rem;cursor:pointer;font-weight:700}
+  .filterbtns button.active{color:var(--text);border-color:var(--accent)}
+
+  .banner{background:rgba(77,163,255,.10);border:1px solid var(--accent);border-radius:10px;padding:12px 14px;font-size:.85rem;margin-top:14px}
+
+  /* Executive summary box (Account Overview) */
+  .exec-summary{background:var(--card2);border:1px solid var(--accent);border-radius:10px;padding:14px 16px;margin-bottom:14px}
+  .exec-summary .es-title{font-weight:800;font-size:.78rem;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:6px}
+  .exec-summary .es-status{font-size:.95rem;margin-bottom:8px}
+  .exec-summary ul{margin:0;padding-left:18px}
+  .exec-summary li{font-size:.85rem;margin:3px 0}
+
+  /* Legend (collapsible footer notes) */
+  .legend-head{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
+  .legend-head b{font-size:.85rem}
+  .legend-toggle{background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:2px 9px;font-size:.75rem;cursor:pointer;font-weight:700}
+  .legend-toggle:hover{border-color:var(--accent);color:var(--accent)}
+  .legend-body{margin-top:8px}
+
+  /* Traffic light reference table */
+  .tlref-title{font-weight:700;color:var(--text);font-size:.85rem;margin-top:16px}
+  .tlref-table th{position:static !important;cursor:default !important}
+  .chart-box{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-top:12px}
+  .chart-box h3{font-size:.9rem;color:var(--muted);margin-bottom:8px}
+  .chart-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}
+  canvas{max-width:100%}
+  .chart-wrap{position:relative;width:100%}
+  .chart-wrap canvas{position:absolute;top:0;left:0;width:100% !important;height:100% !important}
+
+  /* Remarks v2 (dashboard-side only, auto-save to localStorage, never touches artifact/data.json) */
+  .remark-widget{margin-top:8px;min-width:200px}
+  .remark-toggle{cursor:pointer;font-size:.76rem;color:var(--accent);font-weight:700;user-select:none;white-space:nowrap}
+  .remark-toggle:hover{text-decoration:underline}
+  .remark-body{margin-top:6px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px;white-space:normal}
+  .remark-history{display:flex;flex-direction:column;gap:5px;margin-bottom:8px;max-height:200px;overflow-y:auto}
+  .remark-entry{font-size:.76rem;line-height:1.4}
+  .remark-ts{color:var(--muted);font-weight:700;margin-right:3px}
+  .remark-text{color:var(--text);white-space:pre-wrap}
+  .remark-empty{font-size:.76rem;color:var(--muted);font-style:italic}
+  .remark-input{width:100%;box-sizing:border-box;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:5px 7px;font:inherit;font-size:.78rem;resize:vertical;min-height:36px}
+  .remark-input:focus{outline:none;border-color:var(--accent)}
+  .chk-remark{flex:0 0 240px}
+  @media(max-width:820px){ .chk-row{flex-wrap:wrap} .chk-remark{flex:1 1 100%} }
+  .remark-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:999;padding:20px}
+  .remark-modal{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;max-width:720px;width:100%;max-height:80vh;display:flex;flex-direction:column;gap:8px}
+  .remark-modal textarea{width:100%;flex:1;min-height:280px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:8px;font-family:monospace;font-size:.75rem}
+  .remark-modal .rm-actions{display:flex;gap:8px;justify-content:flex-end}
+
+  .verdict{font-size:1rem;font-weight:700;margin:8px 0}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:720px){ .two-col{grid-template-columns:1fr} }
+
+  footer{max-width:1280px;margin:24px auto 0;color:var(--muted);font-size:.78rem;padding:0 16px}
+  footer ul{margin:6px 0 0;padding-left:18px}
+
+  @media print{
+    header,nav.secnav,nav.acctnav,.btns,.filterbtns,#refreshMsg,.chart-box{display:none !important}
+    body{background:#fff;color:#000;font-size:11px}
+    section.sec{break-inside:avoid;border:1px solid #999;box-shadow:none;margin-top:10px}
+    .flag,.diag,.chk-row,.kpi{break-inside:avoid}
+    a{color:#000}
+    :root{--card:#fff;--card2:#fff;--border:#999;--text:#000;--muted:#333}
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
+<header>
+  <div class="head-row">
     <div>
-      <h1 id="title">MO2 Monitor</h1>
-      <div class="sub" id="sub">Memuatkan data…</div>
+      <div class="head-title">📊 Minda Optima — Pantas Baca · Daily Monitoring</div>
+      <div class="head-sub" id="headSub">Account 863467445706037 · MYR · Tracking: WhatsFormSubmit</div>
     </div>
     <div class="btns">
-      <button id="reload">Papar semula</button>
-      <button id="theme">Tema</button>
+      <span id="refreshMsg"></span>
+      <button class="act" id="btnRefresh">↻ Papar Semula</button>
+      <button class="act" id="btnTheme">🌓 Light / Dark</button>
+      <button class="act" id="btnExportRemarks">📝 Export Remarks</button>
+      <button class="act btn-export" id="btnPdf">⬇ Export as PDF</button>
     </div>
-  </header>
+  </div>
+  <nav class="acctnav" id="acctnav"></nav>
+  <nav class="secnav" id="secnav"></nav>
+</header>
 
-  <div id="root"></div>
-  <div class="note" id="note"></div>
-</div>
+<div class="wrap" id="app"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<footer id="footer"></footer>
+
 <script>
-(function(){
-const WINDOWS=[[1,"Semalam"],[3,"3 hari"],[7,"7 hari"],[14,"14 hari"],[30,"30 hari"]];
-let DATA=null, CFG={cpl_good:15,cpl_max:30,waste_multiplier:3}, WIN=7, charts=[];
-const $=s=>document.querySelector(s);
-const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const nf=(n,d=0)=>Number(n).toLocaleString("en-MY",{minimumFractionDigits:d,maximumFractionDigits:d});
-const rm=n=>n==null?"—":"RM"+nf(n,2);
-const cpr=(s,r)=>r>0?s/r:null;
+/* =========================================================================
+   LIVE DATA — this file fetches data.json (must sit in the same folder)
+   at load time, and again whenever "Papar Semula" is clicked. This is what
+   makes it work with GitHub Pages + a daily auto-updated data.json.
+   NOTE: this means it no longer works via double-click file:// (browsers
+   block fetch() on file://) — it must be served over http(s), e.g. GitHub Pages.
+   ========================================================================= */
 
-function sum(rows){
-  const t={spend:0,results:0,impressions:0,clicks:0};
-  rows.forEach(r=>{t.spend+=r.spend;t.results+=r.results;t.impressions+=r.impressions;t.clicks+=r.clicks;});
-  t.cpr=cpr(t.spend,t.results);
-  t.ctr=t.impressions?t.clicks/t.impressions*100:null;
-  t.cpm=t.impressions?t.spend/t.impressions*1000:null;
-  return t;
-}
-function windowRows(n){const d=DATA.daily;return {cur:d.slice(-n),prev:d.length>=2*n?d.slice(-2*n,-n):null};}
-
-function badge(v){
-  if(v==null) return '<span class="badge">—</span>';
-  const c=v<=CFG.cpl_good?"good":v<=CFG.cpl_max?"warn":"bad";
-  return `<span class="badge ${c}">${rm(v)}</span>`;
-}
-function delta(cur,prev,lowerBetter,unit){
-  if(prev==null||cur==null||prev===0) return '<span class="delta flat">tiada perbandingan</span>';
-  const p=(cur-prev)/prev*100;
-  if(Math.abs(p)<0.5) return '<span class="delta flat">≈ sama</span>';
-  const better=lowerBetter?p<0:p>0;
-  return `<span class="delta ${lowerBetter===null?"flat":better?"good":"bad"}">${p>0?"▲":"▼"} ${nf(Math.abs(p),1)}% vs tempoh sebelum</span>`;
-}
-
-function kpis(){
-  const {cur,prev}=windowRows(WIN), c=sum(cur), p=prev?sum(prev):null;
-  const items=[
-    ["Spend",rm(c.spend),delta(c.spend,p&&p.spend,null)],
-    ["Hasil",nf(c.results),delta(c.results,p&&p.results,false)],
-    ["RM / hasil",rm(c.cpr),delta(c.cpr,p&&p.cpr,true)],
-    ["CTR",c.ctr==null?"—":nf(c.ctr,2)+"%",delta(c.ctr,p&&p.ctr,false)],
-    ["CPM",rm(c.cpm),delta(c.cpm,p&&p.cpm,true)],
-  ];
-  return `<div class="grid kpis">${items.map(i=>`<div class="card kpi"><div class="lbl">${i[0]}</div><div class="val">${i[1]}</div>${i[2]}</div>`).join("")}</div>`;
-}
-
-function flags(){
-  const out=[], d=DATA.daily;
-  const w7=sum(d.slice(-7)), w3=sum(d.slice(-3)), y=d[d.length-1];
-  if(w7.cpr!=null){
-    out.push(w7.cpr>CFG.cpl_max
-      ?["bad","RM/hasil 7 hari",`${rm(w7.cpr)} — melebihi had RM${CFG.cpl_max}.`]
-      :w7.cpr>CFG.cpl_good?["warn","RM/hasil 7 hari",`${rm(w7.cpr)} — dalam had RM${CFG.cpl_max} tapi di atas sasaran RM${CFG.cpl_good}.`]
-      :["good","RM/hasil 7 hari",`${rm(w7.cpr)} — dalam sasaran.`]);
-  }
-  if(w3.cpr!=null&&w7.cpr!=null&&w3.cpr>w7.cpr*1.25)
-    out.push(["warn","Trend naik",`RM/hasil 3 hari (${rm(w3.cpr)}) lebih tinggi 25%+ berbanding 7 hari (${rm(w7.cpr)}).`]);
-  const avg7=w7.spend/7;
-  if(y&&avg7>0&&y.spend<avg7*0.5)
-    out.push(["warn","Spend turun",`Spend terakhir ${rm(y.spend)} kurang separuh daripada purata 7 hari (${rm(avg7)}). Semak kempen yang Paused.`]);
-  const active=DATA.campaigns.filter(c=>c.status==="ACTIVE");
-  if(!active.length) out.push(["bad","Tiada kempen Active","Semua kempen Paused."]);
-  else if(active.every(c=>c.results===0)) out.push(["bad","Tiada hasil dari kempen Active",`Kempen Active (${active.map(c=>esc(c.name)).join(", ")}) tiada hasil lead. Kempen lead semua Paused?`]);
-  const limit=CFG.waste_multiplier*CFG.cpl_max;
-  const waste=DATA.ads.filter(a=>a.results===0&&a.spend>=limit).sort((a,b)=>b.spend-a.spend);
-  if(waste.length) out.push(["bad","Pembazir (7 hari)",`${waste.length} ad spend ≥ ${rm(limit)} tanpa hasil, jumlah ${rm(waste.reduce((s,a)=>s+a.spend,0))}: ${waste.slice(0,4).map(a=>esc(a.name.slice(0,40))+" ("+rm(a.spend)+")").join("; ")}${waste.length>4?"…":""}`]);
-  const zero=DATA.ads.filter(a=>a.results===0&&a.spend>0), zs=zero.reduce((s,a)=>s+a.spend,0);
-  out.push(["warn","Ad tanpa hasil",`${zero.length} ad (7 hari) = ${rm(zs)} (${nf(w7.spend?zs/(DATA.ads.reduce((s,a)=>s+a.spend,0))*100:0,1)}% spend ad).`]);
-  return `<section class="card flags"><h2>Red flag</h2>${out.map(f=>`<div class="flag ${f[0]}"><b>${f[1]}</b><span>${f[2]}</span></div>`).join("")}</section>`;
-}
-
-function campTable(){
-  const rows=[...DATA.campaigns].sort((a,b)=>b.spend-a.spend);
-  return `<section class="card"><h2>Kempen (7 hari)</h2><div class="tbl"><table>
-  <tr><th>Kempen</th><th>Status</th><th>Spend</th><th>Hasil</th><th>RM/hasil</th><th>CTR</th><th>CPM</th></tr>
-  ${rows.map(r=>{const t=sum([r]);return `<tr><td>${esc(r.name)}</td><td><span class="badge ${r.status==="ACTIVE"?"good":""}">${esc(r.status)}</span></td><td>${rm(r.spend)}</td><td>${r.results}</td><td>${badge(t.cpr)}</td><td>${t.ctr==null?"—":nf(t.ctr,2)+"%"}</td><td>${rm(t.cpm)}</td></tr>`}).join("")}
-  </table></div></section>`;
-}
-
-let adFilter="all", adQuery="", adAll=false;
-const AD_LIMIT=25;
-function adRows(){
-  return [...DATA.ads].filter(a=>adFilter==="all"||(adFilter==="hasil"?a.results>0:a.results===0))
-    .filter(a=>!adQuery||a.name.toLowerCase().includes(adQuery)||a.campaign.toLowerCase().includes(adQuery))
-    .sort((a,b)=>b.spend-a.spend);
-}
-function adBody(){
-  const all=adRows(), shown=adAll?all:all.slice(0,AD_LIMIT);
-  const mb=$("#adMore"); if(mb){mb.style.display=all.length>AD_LIMIT?"":"none"; mb.textContent=adAll?"Tunjuk 25 teratas sahaja":"Tunjuk semua "+all.length+" ad";}
-  return shown.map(r=>{const t=sum([r]);return `<tr><td>${esc(r.name)}<div class="sub">${esc(r.campaign)}</div></td><td>${rm(r.spend)}</td><td>${r.results}</td><td>${badge(t.cpr)}</td><td>${t.ctr==null?"—":nf(t.ctr,2)+"%"}</td><td>${rm(t.cpm)}</td></tr>`}).join("")||'<tr><td colspan="6">Tiada ad.</td></tr>';
-}
-function adTable(){
-  return `<section class="card"><h2>Ad (7 hari)</h2>
-  <div class="tools"><input id="q" placeholder="Cari nama ad / kempen"><select id="f"><option value="all">Semua</option><option value="hasil">Ada hasil</option><option value="kosong">0 hasil</option></select></div>
-  <div class="tbl"><table><thead><tr><th>Ad</th><th>Spend</th><th>Hasil</th><th>RM/hasil</th><th>CTR</th><th>CPM</th></tr></thead><tbody id="adbody"></tbody></table></div><button class="more" id="adMore"></button></section>`;
-}
-
-function charts_(){
-  charts.forEach(c=>c.destroy());charts=[];
-  if(!window.Chart) return;
-  const d=DATA.daily, labels=d.map(r=>r.date.slice(5));
-  const css=getComputedStyle(document.documentElement);
-  const accent=css.getPropertyValue("--accent").trim(), mute=css.getPropertyValue("--mute").trim(), line=css.getPropertyValue("--line").trim(),
-        good=css.getPropertyValue("--good").trim(), bad=css.getPropertyValue("--bad").trim(), warn=css.getPropertyValue("--warn").trim();
-  const base={responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},
-    plugins:{legend:{labels:{color:mute,boxWidth:12}}},
-    scales:{x:{ticks:{color:mute,maxTicksLimit:10},grid:{color:line}}}};
-  charts.push(new Chart($("#c1"),{data:{labels,datasets:[
-    {type:"bar",label:"Spend (RM)",data:d.map(r=>r.spend),backgroundColor:accent+"99",yAxisID:"y"},
-    {type:"line",label:"Hasil",data:d.map(r=>r.results),borderColor:good,backgroundColor:good,tension:.25,pointRadius:2,yAxisID:"y1"}]},
-    options:{...base,scales:{...base.scales,y:{ticks:{color:mute},grid:{color:line}},y1:{position:"right",ticks:{color:mute},grid:{display:false}}}}}));
-  const cp=d.map(r=>r.results>0?+(r.spend/r.results).toFixed(2):null);
-  charts.push(new Chart($("#c2"),{type:"line",data:{labels,datasets:[
-    {label:"RM / hasil",data:cp,borderColor:accent,backgroundColor:accent,tension:.25,pointRadius:2,spanGaps:true},
-    {label:"Sasaran "+CFG.cpl_good,data:d.map(()=>CFG.cpl_good),borderColor:good,borderDash:[6,4],pointRadius:0},
-    {label:"Had "+CFG.cpl_max,data:d.map(()=>CFG.cpl_max),borderColor:bad,borderDash:[6,4],pointRadius:0}]},
-    options:{...base,scales:{...base.scales,y:{beginAtZero:true,max:CFG.cpl_max*3,ticks:{color:mute},grid:{color:line}}}}}));
-}
-
-function render(){
-  const m=DATA.meta;
-  $("#title").textContent=m.account_name+" — Pantas Baca Monitor";
-  const g=new Date(m.generated_at);
-  $("#sub").textContent="Dikemas kini "+g.toLocaleString("ms-MY",{dateStyle:"medium",timeStyle:"short"})+" · data sehingga "+DATA.daily[DATA.daily.length-1].date;
-  $("#note").textContent=m.note+" Garis rujukan RM"+CFG.cpl_good+" / RM"+CFG.cpl_max+" boleh diubah dalam config.json.";
-  $("#root").innerHTML=
-    `<div class="tabs">${WINDOWS.map(w=>`<button data-w="${w[0]}" class="${w[0]===WIN?"on":""}">${w[1]}</button>`).join("")}</div>`+
-    kpis()+flags()+
-    `<div class="grid two" style="margin-bottom:14px"><section class="card"><h2>Spend &amp; hasil harian (30 hari)</h2><div class="chartbox"><canvas id="c1"></canvas></div></section>
-     <section class="card"><h2>RM / hasil harian <span class="sub">(paksi dipotong pada RM${CFG.cpl_max*3}; hover untuk nilai sebenar)</span></h2><div class="chartbox"><canvas id="c2"></canvas></div></section></div>`+
-    campTable()+adTable();
-  document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{WIN=+b.dataset.w;render();});
-  $("#adbody").innerHTML=adBody();
-  $("#adMore").onclick=()=>{adAll=!adAll;$("#adbody").innerHTML=adBody();};
-  $("#f").value=adFilter;$("#q").value=adQuery;
-  $("#f").onchange=e=>{adFilter=e.target.value;$("#adbody").innerHTML=adBody();};
-  $("#q").oninput=e=>{adQuery=e.target.value.toLowerCase();$("#adbody").innerHTML=adBody();};
-  charts_();
-}
-
-async function load(){
-  $("#sub").textContent="Memuatkan data…";
+/* ========================= APP ========================= */
+// Import satu kalkulasi bajet terus dari pautan (?mo2_calc_import=...) yang dihantar oleh kalkulator luaran.
+// Simpan ke localStorage 'mo2api_mo2_budget_calculations' (ganti entri bulan yang sama — bukan duplicate), papar
+// semula senarai, dan bersihkan URL supaya import yang sama tak berulang bila page di-refresh/bookmark semula.
+// Dipanggil selepas render() pertama (hujung init()) supaya '#savedCalcList' sudah wujud dlm DOM sebenar.
+function importCalculationFromLink(){
+  const params = new URLSearchParams(window.location.search);
+  const importData = params.get('mo2_calc_import');
+  if(!importData) return;
   try{
-    const [d,c]=await Promise.all([
-      fetch("data.json?_="+Date.now()).then(r=>{if(!r.ok)throw new Error("data.json "+r.status);return r.json();}),
-      fetch("config.json?_="+Date.now()).then(r=>r.ok?r.json():{}).catch(()=>({}))]);
-    DATA=d;CFG={...CFG,...c};render();
-  }catch(e){
-    $("#root").innerHTML='<div class="err">Gagal muat data: '+esc(e.message)+'. Buka melalui http(s) (cth. GitHub Pages atau <code>python3 -m http.server</code> dalam folder dashboard), bukan dengan double-click fail.</div>';
-    $("#sub").textContent="";
+    const data = JSON.parse(decodeURIComponent(importData));
+    let existing;
+    try{ existing = JSON.parse(localStorage.getItem('mo2api_mo2_budget_calculations') || '{"calculations":[]}'); }catch(e){ existing = {calculations:[]}; }
+    if(!Array.isArray(existing.calculations)) existing.calculations = [];
+    existing.calculations = existing.calculations.filter(c=>c.month !== data.month);
+    existing.calculations.push(data);
+    localStorage.setItem('mo2api_mo2_budget_calculations', JSON.stringify(existing));
+    renderSavedBudgetCalculations();
+    window.history.replaceState({}, document.title, window.location.pathname);
+    alert('✅ Budget calculation imported!');
+  }catch(e){ console.error('Import failed:', e); }
+}
+
+let DATA = null;
+/* ---------- Multi-account ----------
+   Semua account dalam SATU data.json (dikemaskini oleh satu scheduled task harian).
+   Tab "Gabungan" = ringkasan semua account (front page sahaja). Tab account = dashboard penuh 10 section. */
+const ACCOUNTS = [
+  {key:'mo2',  name:'Minda Optima 2'}
+];
+let DATASETS = {}, DATA_ERR = {}, DATA_META = {};
+let currentAcct = 'all';
+try{ currentAcct = localStorage.getItem('mo2api_mo_current_acct') || 'all'; }catch(e){}
+/* Satu fail sahaja: data.json = { _meta:{...}, accounts:{ mo2:{...}, mo4:{...}, mo05:{...} } }.
+   Format lama (satu account sahaja, tiada "accounts") masih diterima sebagai Minda Optima 2. */
+async function fetchAll(){
+  const res = await fetch('data.json?_=' + Date.now());
+  if(!res.ok) throw new Error('HTTP ' + res.status);
+  const raw = await res.json();
+  DATASETS = {}; DATA_ERR = {};
+  const accs = (raw && raw.accounts && typeof raw.accounts==='object') ? raw.accounts : {mo2: raw};
+  DATA_META = (raw && raw.accounts) ? (raw._meta||{}) : {};
+  ACCOUNTS.forEach(a=>{
+    const d = accs[a.key];
+    if(d && typeof d==='object' && d._meta){
+      try{ DATASETS[a.key] = normalizeData(d); }catch(e){ console.error('normalize',a.key,e); DATASETS[a.key]=d; }
+    } else DATA_ERR[a.key] = 'tiada dlm data.json';
+  });
+  if(!Object.keys(DATASETS).length) throw new Error('data.json tiada data account');
+}
+async function fetchData(){ await fetchAll(); return DATASETS[currentAcct] || DATASETS.mo2; }
+/* ---------- Normalizer ----------
+   Scheduled task kadang-kadang tukar bentuk JSON (nama key / object vs array).
+   Fungsi ni tukar semua variasi yang diketahui kepada bentuk yang renderer faham, supaya dashboard tak crash. */
+const WIN_ORDER = ['yesterday','3D','7D','14D','30D'];
+function sumLeads(o){
+  if(!o) return null;
+  if(o.leads!=null && typeof o.leads==='number') return o.leads;
+  const ks = Object.keys(o).filter(k=>k.endsWith('_leads') && typeof o[k]==='number');
+  return ks.length ? ks.reduce((a,k)=>a+o[k],0) : null;
+}
+function normalizeData(d){
+  if(!d || typeof d!=='object') return d;
+  const s3 = d.section_3_account_overview = d.section_3_account_overview || {};
+  s3.metrics = s3.metrics || {};
+  if(!s3.total_this_year && s3.metrics.total_this_year) s3.total_this_year = s3.metrics.total_this_year;
+  delete s3.metrics.total_this_year;
+  Object.values(s3.metrics).forEach(m=>{
+    if(!m || typeof m!=='object') return;
+    const hasSrc = Object.keys(m).some(k=>k.endsWith('_leads'));
+    if(!hasSrc && typeof m.leads==='number') m.total_leads = m.leads;
+    if(m.ctr==null && m.ctr_pct!=null) m.ctr = m.ctr_pct;
+  });
+  if(typeof s3.trend_7D_vs_14D==='string') s3.trend_7D_vs_14D = {cpl:s3.trend_7D_vs_14D};
+  s3.trend_7D_vs_14D = s3.trend_7D_vs_14D || {};
+  if(s3.purpose==null) s3.purpose = 'Prestasi akaun mengikut window masa';
+
+  const s4 = d.section_4_performance_trend = d.section_4_performance_trend || {};
+  if(s4.series && !Array.isArray(s4.series)){
+    const obj = s4.series;
+    s4.series = WIN_ORDER.filter(k=>obj[k]).map(k=>Object.assign({window: k==='yesterday'?'Yesterday':k}, obj[k]));
+  }
+  s4.series = s4.series || [];
+  s4.series.forEach(x=>{ if(x.whatsform_leads==null) x.whatsform_leads = sumLeads(x); });
+  if(!s4.derived){
+    const y = s4.series.find(x=>x.window==='Yesterday');
+    s4.derived = {
+      cpl_slope: s4.cpl_slope_7D_vs_14D!=null ? 'RM'+Number(s4.cpl_slope_7D_vs_14D).toFixed(2)+' (7D vs 14D)' : '—',
+      leads_per_day_yesterday: y ? y.whatsform_leads : '—',
+      leads_per_day_7D: s4.leads_per_day_7D!=null ? s4.leads_per_day_7D : '—',
+      leads_per_day_14D: s4.leads_per_day_14D!=null ? s4.leads_per_day_14D : '—',
+      leads_per_day_30D: s4.leads_per_day_30D!=null ? s4.leads_per_day_30D : '—',
+      observation: s4.observation || '—'
+    };
+  }
+  ['leads_per_day_7D','leads_per_day_14D','leads_per_day_30D'].forEach(k=>{ if(s4.derived[k]==null) s4.derived[k]='—'; });
+
+  const fixLeads = r=>{ if(r && r.whatsform_leads==null && r.leads!=null) r.whatsform_leads = r.leads; };
+  ((d.section_5_campaign_summary||{}).campaigns||[]).forEach(fixLeads);
+  ((d.section_6_adset_summary||{}).adsets||[]).forEach(fixLeads);
+  const s7 = d.section_7_ads_performance = d.section_7_ads_performance || {};
+  s7.ads_14D = s7.ads_14D || []; s7.ads_7D_top = s7.ads_7D_top || [];
+  s7.ads_14D.forEach(fixLeads); s7.ads_7D_top.forEach(fixLeads);
+  return d;
+}
+let charts = [];
+let currentSection = 1;
+const SEC_TITLES = ['Account','Red Flags','Campaign','Ad Set','Ads','Budget','Trend','Diagnostic','Checklist','Historical'];
+const SEC_SLUGS  = ['account','red-flags','campaign','ad-set','ads','budget','trend','diagnostic','checklist','historical'];
+const $ = (s,el=document)=>el.querySelector(s);
+const el = (t,cls,html)=>{const e=document.createElement(t); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e;};
+
+/* formatting */
+const fmtRM = n => (n==null||isNaN(n)) ? '—' : 'RM'+Number(n).toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtRM0 = n => (n==null||isNaN(n)) ? '—' : 'RM'+Number(n).toLocaleString('en-MY',{maximumFractionDigits:0});
+const fmtN  = n => (n==null||isNaN(n)) ? '—' : Number(n).toLocaleString('en-MY');
+const fmtPct= n => (n==null||isNaN(n)) ? '—' : Number(n).toFixed(2)+'%';
+const fmtX  = n => (n==null||isNaN(n)) ? '—' : Number(n).toFixed(2);
+
+function tlClass(s){ if(!s) return 'na'; if(s.indexOf('🔴')>-1) return 'red'; if(s.indexOf('🟡')>-1) return 'yellow'; if(s.indexOf('🟢')>-1) return 'green'; return 'na'; }
+function tlLabel(c){ return {red:'RED',yellow:'YELLOW',green:'GREEN',na:'N/A'}[c]; }
+function tlBadge(s){ const c=tlClass(s); return '<span class="tl '+c+'"><span class="dot"></span>'+tlLabel(c)+'</span>'; }
+function cplCls(v){ if(v==null||isNaN(v)) return ''; if(v<=15) return 'cpl-g'; if(v<30) return 'cpl-y'; return 'cpl-r'; }
+function cplColor(v){ if(v==null||isNaN(v)) return '#78909C'; if(v<=15) return '#4CAF50'; if(v<30) return '#FFC107'; return '#F44336'; }
+function cplCell(v){ return v==null||isNaN(v) ? '<td class="num">—</td>' : '<td class="num '+cplCls(v)+'">'+fmtRM(v)+'</td>'; }
+function trendHTML(t){
+  if(!t) return '—';
+  if(t.indexOf('▲')>-1) return '<span class="trend-up">'+t+'</span>';
+  if(t.indexOf('▼')>-1) return '<span class="trend-down">'+t+'</span>';
+  return '<span class="trend-flat">'+t+'</span>';
+}
+const g = (o,k)=> (o && typeof o[k]==='number') ? o[k] : null;
+const short = (s,n=30)=> !s ? '' : (s.length>n ? s.slice(0,n-1)+'…' : s);
+
+/* ---------- Account Overview helpers (new/old-ads CPL thresholds, leads-by-source, exec summary) ---------- */
+const NEW_ADS_WINS = ['yesterday','3D'];
+function cplEval(win,v){
+  if(v==null||isNaN(v)) return {cls:'',dot:''};
+  if(NEW_ADS_WINS.indexOf(win)>-1){
+    if(v<=30) return {cls:'cpl-g',dot:'🟢'};
+    if(v<=55) return {cls:'cpl-y',dot:'🟡'};
+    return {cls:'cpl-r',dot:'🔴'};
+  }
+  if(v<=15) return {cls:'cpl-g',dot:'🟢'};
+  if(v<30) return {cls:'cpl-y',dot:'🟡'};
+  return {cls:'cpl-r',dot:'🔴'};
+}
+const LEAD_SOURCE_LABELS = { whatsform_leads: 'WhatsFormSubmit', total_leads: 'Lead' };
+function leadLabel(k){ return LEAD_SOURCE_LABELS[k] || k.replace(/_leads$/,'').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()); }
+function leadSourcesFor(mObj){
+  return Object.keys(mObj||{}).filter(k=>k.endsWith('_leads')).map(k=>({key:k,label:leadLabel(k),value:mObj[k]}));
+}
+function fmtDateShort(iso){
+  if(!iso) return '—';
+  const p = iso.split('-'); if(p.length<3) return iso;
+  const months=['Jan','Feb','Mac','Apr','Mei','Jun','Jul','Ogo','Sep','Okt','Nov','Dis'];
+  return p[2]+' '+months[Number(p[1])-1]+' '+p[0];
+}
+function buildExecSummary(){
+  const acc = DATA.section_3_account_overview;
+  const budget = DATA.section_1_budget_card || {};
+  const camp = (DATA.section_5_campaign_summary && DATA.section_5_campaign_summary.campaigns) || [];
+  const adsets = (DATA.section_6_adset_summary && DATA.section_6_adset_summary.adsets) || [];
+  const ads = (DATA.section_7_ads_performance && DATA.section_7_ads_performance.ads_14D) || [];
+  const flags = (DATA.section_2_red_flags && DATA.section_2_red_flags.flags) || [];
+  const trend = DATA.section_4_performance_trend || {};
+
+  const activeCamp = camp.filter(c=>/ACTIVE/i.test(c.status||''));
+  const campRed = camp.filter(c=>tlClass(c.traffic_light)==='red');
+  const adsetsGreen = adsets.filter(a=>tlClass(a.traffic_light)==='green');
+  const adsetsRed = adsets.filter(a=>tlClass(a.traffic_light)==='red');
+  const adsActive = ads.filter(a=>(a.status||'').toUpperCase()==='ACTIVE');
+  const adsRed = ads.filter(a=>tlClass(a.traffic_light)==='red');
+
+  const p1 = flags.find(f=>f.priority==='P1') || flags[0];
+  const keyAction = p1 ? (p1.entity+' — '+((p1.suggested_action||'').split('.')[0])+'.') : 'Tiada tindakan segera.';
+
+  const overallCls = tlClass(acc.traffic_light_account_cpl);
+  const overallWord = {red:'MERAH — perlu tindakan segera',yellow:'KUNING — perlu dipantau',green:'HIJAU — sihat',na:'tidak diketahui'}[overallCls];
+
+  const m = acc.metrics || {};
+  const cplY = m.yesterday && m.yesterday.cpl, cpl7 = m['7D'] && m['7D'].cpl, cpl14 = m['14D'] && m['14D'].cpl;
+  let cplTrendTxt = 'trend stabil';
+  if(cpl7!=null && cpl14!=null){
+    const diff = cpl7-cpl14;
+    cplTrendTxt = Math.abs(diff)<0.5 ? 'stabil (7D≈14D)' : (diff>0 ? 'CPL 7D naik berbanding 14D (+'+fmtRM(diff)+')' : 'CPL 7D turun berbanding 14D ('+fmtRM(diff)+')');
+  }
+  // Contextual notes: rujuk terus nota struktur/penting yang sedia direkodkan pada pull ini (bukan reka-reka tarikh cuti/sale).
+  const notes = (DATA._meta && DATA._meta.IMPORTANT_NOTES) || [];
+  const contextNote = notes.length ? notes[0] : 'Tiada perubahan struktur ketara pull ini.';
+  const outlookTxt = (trend.derived && trend.derived.cpl_slope) ? trend.derived.cpl_slope : 'Data trend belum cukup untuk unjuran.';
+
+  return '<div class="exec-summary">'+
+    '<div class="es-title">Ringkasan Eksekutif</div>'+
+    '<div class="es-status"><b>Status:</b> '+tlBadge(acc.traffic_light_account_cpl)+' '+overallWord+' — CPL semalam '+fmtRM(cplY)+', '+cplTrendTxt+'. Pace bajet: '+(budget.pace_status||'—')+'</div>'+
+    '<div class="es-status"><b>Contextual Notes:</b> '+contextNote+'</div>'+
+    '<div class="es-status"><b>Weekly Outlook:</b> '+outlookTxt+'</div>'+
+    '<div class="es-status"><b>Action Required:</b> '+keyAction+'</div>'+
+    '<ul>'+
+      '<li><b>Campaign:</b> '+activeCamp.length+' aktif'+(campRed.length?', '+campRed.length+' merah':'')+'</li>'+
+      '<li><b>Ad Set:</b> '+adsetsGreen.length+' berprestasi baik, '+adsetsRed.length+' ditandakan</li>'+
+      '<li><b>Ads:</b> '+adsActive.length+' aktif'+(adsRed.length?', '+adsRed.length+' bermasalah':', semua OK')+'</li>'+
+    '</ul></div>';
+}
+
+function buildCampaignExecSummary(){
+  const camp = (DATA.section_5_campaign_summary && DATA.section_5_campaign_summary.campaigns) || [];
+  const active = camp.filter(c=>/ACTIVE/i.test(c.status||''));
+  const withCpl7 = active.filter(c=>g(c.cpl,'7D')!=null);
+  let best=null, worst=null;
+  withCpl7.forEach(c=>{
+    const v = g(c.cpl,'7D');
+    if(!best || v<g(best.cpl,'7D')) best=c;
+    if(!worst || v>g(worst.cpl,'7D')) worst=c;
+  });
+  const red = camp.filter(c=>tlClass(c.traffic_light)==='red');
+  const paused = camp.filter(c=>/PAUSED/i.test(c.status||''));
+  const avg7vals = withCpl7.map(c=>g(c.cpl,'7D'));
+  const avg14vals = active.filter(c=>g(c.cpl,'14D')!=null).map(c=>g(c.cpl,'14D'));
+  const avg = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : null;
+  const avg7 = avg(avg7vals), avg14 = avg(avg14vals);
+  let outlook = 'Data belum cukup untuk unjuran.';
+  if(avg7!=null && avg14!=null){
+    const diff = avg7-avg14;
+    outlook = Math.abs(diff)<0.5 ? 'CPL purata campaign stabil minggu ini.' : (diff>0 ? 'CPL purata campaign menaik sedikit (+'+fmtRM(diff)+') berbanding 14D — pantau.' : 'CPL purata campaign menurun ('+fmtRM(diff)+') berbanding 14D — trend positif.');
+  }
+  const nextAction = red[0] ? (red[0].campaign+' — '+((red[0].action||'').split('.')[0])+'.') : (paused[0] ? paused[0].campaign+' kekal PAUSED — sahkan niat jangka panjang dgn owner.' : 'Tiada tindakan segera, kekalkan pantau.');
+
+  return '<div class="exec-summary">'+
+    '<div class="es-title">Ringkasan Eksekutif</div>'+
+    '<div class="es-status"><b>Performance:</b> '+(best?('Terbaik: '+best.campaign+' (CPL7D '+fmtRM(g(best.cpl,'7D'))+')'):'—')+(worst&&worst!==best?(' · Terlemah: '+worst.campaign+' (CPL7D '+fmtRM(g(worst.cpl,'7D'))+')'):'')+'</div>'+
+    '<div class="es-status"><b>Need Restructure?</b> '+(red.length?red.length+' campaign merah — pertimbang restructure/reduce.':'Tiada campaign merah setakat ini.')+(paused.length?' '+paused.length+' campaign PAUSED.':'')+'</div>'+
+    '<div class="es-status"><b>Weekly Outlook:</b> '+outlook+'</div>'+
+    '<div class="es-status"><b>Next Action:</b> '+nextAction+'</div>'+
+  '</div>';
+}
+
+function buildAdsetExecSummary(){
+  const rows = (DATA.section_6_adset_summary && DATA.section_6_adset_summary.adsets) || [];
+  const green = rows.filter(a=>tlClass(a.traffic_light)==='green').sort((a,b)=>(g(a.cpl,'7D')??99999)-(g(b.cpl,'7D')??99999));
+  const red = rows.filter(a=>tlClass(a.traffic_light)==='red');
+  const highFreq = rows.filter(a=>a.frequency_14D!=null && a.frequency_14D>2.5);
+  const topPerformers = green.slice(0,2).map(a=>a.adset+' (CPL7D '+fmtRM(g(a.cpl,'7D'))+')').join(', ') || '—';
+  const problems = red.map(a=>a.adset+' (CPL7D '+fmtRM(g(a.cpl,'7D'))+')').join(', ') || 'Tiada ad set merah.';
+  const outlook = highFreq.length ? highFreq.length+' ad set frequency 14D >2.5 — risiko audience fatigue.' : 'Frequency semua ad set masih sihat (≤2.5).';
+  const rec = red[0] ? (red[0].action||'Semak ad set merah dgn owner.') : (green[0] ? 'Pertimbang scale '+green[0].adset+' (performer terbaik).' : 'Kekalkan pantauan.');
+
+  return '<div class="exec-summary">'+
+    '<div class="es-title">Ringkasan Eksekutif</div>'+
+    '<div class="es-status"><b>Top Performers:</b> '+topPerformers+'</div>'+
+    '<div class="es-status"><b>Problem Ad Sets:</b> '+problems+'</div>'+
+    '<div class="es-status"><b>Weekly Outlook:</b> '+outlook+'</div>'+
+    '<div class="es-status"><b>Recommendation:</b> '+rec+'</div>'+
+  '</div>';
+}
+
+function buildAdsExecSummary(){
+  const d = DATA.section_7_ads_performance || {};
+  const withCpl = (d.ads_14D||[]).filter(a=>a.whatsform_leads!=null && a.cpl!=null);
+  let best=null, worst=null;
+  withCpl.forEach(a=>{ if(!best||a.cpl<best.cpl) best=a; if(!worst||a.cpl>worst.cpl) worst=a; });
+  const flagged = (d.ads_14D||[]).filter(a=>a.flag);
+  const fatigue = (d.ads_14D||[]).filter(a=>a.frequency!=null && a.frequency>2);
+  const outlook = flagged.length ? flagged.length+' ad ditandakan bermasalah — pertimbang refresh creative.' : 'Tiada isu creative ketara setakat ini.';
+  const action = flagged[0] ? (flagged[0].ad+' — '+flagged[0].flag) : (worst ? 'Semak '+worst.ad+' (CPL tertinggi '+fmtRM(worst.cpl)+').' : 'Kekalkan pantauan.');
+
+  return '<div class="exec-summary">'+
+    '<div class="es-title">Ringkasan Eksekutif</div>'+
+    '<div class="es-status"><b>Creative Performance:</b> '+(best?('Terbaik: '+best.ad+' (CPL '+fmtRM(best.cpl)+')'):'—')+(worst&&worst!==best?(' · Terlemah: '+worst.ad+' (CPL '+fmtRM(worst.cpl)+')'):'')+'</div>'+
+    '<div class="es-status"><b>Fatigue Indicator:</b> '+(fatigue.length?fatigue.length+' ad frequency >2.0 — mungkin mula fatigue.':'Frequency semua ad masih rendah.')+'</div>'+
+    '<div class="es-status"><b>Weekly Outlook:</b> '+outlook+'</div>'+
+    '<div class="es-status"><b>Action:</b> '+action+'</div>'+
+  '</div>';
+}
+
+function buildTrendExecSummary(){
+  const d = DATA.section_4_performance_trend || {};
+  const dv = d.derived || {};
+  const flags = (DATA.section_2_red_flags && DATA.section_2_red_flags.flags) || [];
+  const p1s = flags.filter(f=>f.priority==='P1');
+  const notes = (DATA._meta && DATA._meta.IMPORTANT_NOTES) || [];
+  const contextNote = notes.find(n=>/PAUSED|STRUKTUR|BAHARU/i.test(n)) || (notes[0]||'Tiada perubahan struktur ketara.');
+  const series = d.series || [];
+  const w7 = series.find(s=>s.window==='7D'), w14 = series.find(s=>s.window==='14D');
+  let projection = 'Data belum cukup utk unjuran 14 hari.';
+  if(w7 && w14 && w7.cpl!=null && w14.cpl!=null){
+    const diff = w7.cpl-w14.cpl;
+    projection = Math.abs(diff)<0.5 ? 'Jika trend semasa berterusan, CPL 14 hari akan datang kekal ~'+fmtRM(w7.cpl)+'.' : (diff>0 ? 'Jika trend naik ni berterusan, CPL boleh mencecah ~'+fmtRM(w7.cpl+diff)+' dlm 14 hari akan datang.' : 'Jika trend turun ni berterusan, CPL boleh jatuh ke ~'+fmtRM(Math.max(0,w7.cpl+diff))+' dlm 14 hari akan datang.');
+  }
+  const alert = p1s.length ? p1s.length+' red flag P1 aktif — rujuk Section 2.' : 'Tiada red flag P1 aktif setakat ini.';
+
+  return '<div class="exec-summary">'+
+    '<div class="es-title">Ringkasan Eksekutif</div>'+
+    '<div class="es-status"><b>7-Day Trend:</b> '+(dv.cpl_slope||'—')+'</div>'+
+    '<div class="es-status"><b>Seasonal/External Impact:</b> '+contextNote+'</div>'+
+    '<div class="es-status"><b>14-Day Projection:</b> '+projection+'</div>'+
+    '<div class="es-status"><b>Alert:</b> '+alert+'</div>'+
+  '</div>';
+}
+
+/* ---------- Sortable table helper ---------- */
+function buildTable(cols, rows, opts={}){
+  const wrap = el('div','tablewrap');
+  const table = el('table');
+  const thead = el('thead');
+  const trh = el('tr');
+  let sortState = opts.defaultSort ? {key:opts.defaultSort, dir:opts.defaultDir||'desc'} : null;
+
+  cols.forEach(c=>{
+    const th = el('th', c.sortable===false?'no-sort':'', c.label + (c.sortable===false?'':' <span class="arrow">↕</span>'));
+    if(c.sortable!==false){
+      th.addEventListener('click',()=>{
+        if(sortState && sortState.key===c.key){ sortState.dir = sortState.dir==='asc'?'desc':'asc'; }
+        else { sortState = {key:c.key, dir:c.numeric?'desc':'asc'}; }
+        renderBody();
+        [...trh.children].forEach(x=>x.classList.remove('sorted'));
+        th.classList.add('sorted');
+        th.querySelector('.arrow').textContent = sortState.dir==='asc'?'↑':'↓';
+      });
+    }
+    trh.appendChild(th);
+  });
+  thead.appendChild(trh); table.appendChild(thead);
+  const tbody = el('tbody'); table.appendChild(tbody);
+
+  function renderBody(){
+    let r = rows.slice();
+    if(sortState){
+      const c = cols.find(x=>x.key===sortState.key);
+      r.sort((a,b)=>{
+        let va = c.sortVal ? c.sortVal(a) : a[c.key];
+        let vb = c.sortVal ? c.sortVal(b) : b[c.key];
+        if(va==null) va = c.numeric ? -Infinity : '';
+        if(vb==null) vb = c.numeric ? -Infinity : '';
+        if(c.numeric) return sortState.dir==='asc' ? va-vb : vb-va;
+        return sortState.dir==='asc' ? String(va).localeCompare(vb) : String(vb).localeCompare(va);
+      });
+    }
+    tbody.innerHTML = r.map(row=>'<tr>'+cols.map(c=>c.cell(row)).join('')+'</tr>').join('');
+  }
+  renderBody();
+  wrap.appendChild(table);
+  return wrap;
+}
+
+/* ---------- Section builders ---------- */
+function section(num, title, purpose){
+  const s = el('section','sec'); s.id='s'+num;
+  const h = el('div','sec-head');
+  h.innerHTML = '<span class="sec-num">SEC '+num+'</span><h2>'+title+'</h2>';
+  s.appendChild(h);
+  if(purpose) s.appendChild(el('div','sec-purpose',purpose));
+  return s;
+}
+
+function render1(){
+  const d = DATA.section_1_budget_card;
+  const s = section(6,'💰 Budget Card', d.purpose);
+  const cards = el('div','cards');
+  cards.innerHTML =
+    kpi('Spend semalam', fmtRM(d.spend_yesterday), d.spend_yesterday_note || 'hari kalendar penuh terakhir') +
+    kpi('Budget harian (ABO)', fmtRM0(d.daily_budget_total_active_ABO), d.daily_budget_note) +
+    kpi('Run-rate vs budget', (d.run_rate_vs_budget_pct==null?'—':d.run_rate_vs_budget_pct.toFixed(0)+'%'), d.run_rate_vs_budget_note || 'run-rate 7D ÷ budget harian') +
+    kpi('Guardrail', 'RM'+d.guardrail_min+' – RM'+fmtN(d.guardrail_max), 'had akaun') +
+    kpi('Run-rate 7D', fmtRM(d.recent_daily_run_rate.avg_daily_spend_7D)+'/hari', '14D: '+fmtRM(d.recent_daily_run_rate.avg_daily_spend_14D)+' · 3D: '+fmtRM(d.recent_daily_run_rate.avg_daily_spend_3D));
+  s.appendChild(cards);
+
+  // bar: min .. budget .. max, marker at run-rate & today
+  const max = d.guardrail_max;
+  const bpos = (v)=> Math.min(100, Math.max(0, v/max*100));
+  const bar = el('div','budgetbar');
+  bar.innerHTML =
+    '<div class="fill" style="width:'+bpos(d.recent_daily_run_rate.avg_daily_spend_7D)+'%"></div>'+
+    '<div class="tick" style="left:'+bpos(d.daily_budget_total_active_ABO)+'%"></div>'+
+    '<div class="tick-lbl" style="left:'+bpos(d.daily_budget_total_active_ABO)+'%">Budget '+fmtRM0(d.daily_budget_total_active_ABO)+'</div>'+
+    '<div class="tick" style="left:'+bpos(d.recent_daily_run_rate.avg_daily_spend_7D)+'%"></div>'+
+    '<div class="tick-lbl" style="left:'+bpos(d.recent_daily_run_rate.avg_daily_spend_7D)+'%;margin-top:14px">Run-rate 7D</div>';
+  s.appendChild(bar);
+  s.appendChild(el('div','note','Skala 0 → RM'+fmtN(max)+' (cap harian). Pace: '+d.pace_status));
+
+  // Kalkulator bajet luaran (link disediakan owner) + pembaca simpanan kalkulasi tempatan (localStorage, private per browser).
+  const calcWrap = el('div');
+  calcWrap.style.cssText = 'margin-top:16px;padding-top:12px;border-top:1px solid var(--border)';
+  calcWrap.innerHTML =
+    '<a href="https://claude.ai/artifact/JzVR9HfmoQkfDUwEAwYxME" target="_blank" rel="noopener" class="act btn-export" style="display:inline-block;text-decoration:none;margin-bottom:12px">🧮 Open Calculator</a>'+
+    '<button class="act" id="btnImportCalc" style="margin-bottom:12px;margin-left:8px">📥 Import Calculation</button>'+
+    '<details style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-top:8px">'+
+      '<summary style="cursor:pointer;font-weight:700;color:var(--text)">📋 Saved Budget Calculations</summary>'+
+      '<div id="savedCalcList" style="margin-top:12px;font-size:.83rem"></div>'+
+    '</details>';
+  s.appendChild(calcWrap);
+  renderSavedBudgetCalculations(calcWrap);
+  calcWrap.querySelector('#btnImportCalc').addEventListener('click', showImportCalcModal);
+  return s;
+}
+// Kalkulator (artifact lain) & Dashboard adalah origin berasingan - localStorage tak boleh dikongsi terus.
+// Flow: di Calculator klik "📋 Copy ke Dashboard" (JSON disalin), paste JSON tu di modal ni, klik Import.
+function showImportCalcModal(){
+  const bg = el('div','remark-modal-bg');
+  bg.innerHTML =
+    '<div class="remark-modal">'+
+      '<b>📥 Import Budget Calculation</b>'+
+      '<div class="note" style="margin:0">Di Calculator, klik butang "📋 Copy ke Dashboard" untuk salin JSON, kemudian paste kat bawah ni dan klik Import.</div>'+
+      '<textarea id="importCalcTa" placeholder="Paste JSON dari Calculator di sini..."></textarea>'+
+      '<div class="rm-actions">'+
+        '<button class="act" id="importCalcBtn">📥 Import</button>'+
+        '<button class="act" id="importCalcCloseBtn">Tutup</button>'+
+      '</div>'+
+    '</div>';
+  document.body.appendChild(bg);
+  bg.querySelector('#importCalcCloseBtn').addEventListener('click',()=>bg.remove());
+  bg.addEventListener('click',e=>{ if(e.target===bg) bg.remove(); });
+  bg.querySelector('#importCalcBtn').addEventListener('click',()=>{
+    const raw = bg.querySelector('#importCalcTa').value.trim();
+    if(!raw) return;
+    try{
+      const calc = JSON.parse(raw);
+      if(!calc || !calc.month || !calc.results) throw new Error('bad format');
+      let existing;
+      try{ existing = JSON.parse(localStorage.getItem('mo2api_mo2_budget_calculations') || '{"calculations":[]}'); }catch(e){ existing = {calculations:[]}; }
+      if(!Array.isArray(existing.calculations)) existing.calculations = [];
+      existing.calculations = existing.calculations.filter(c=>c.month !== calc.month);
+      existing.calculations.push(calc);
+      localStorage.setItem('mo2api_mo2_budget_calculations', JSON.stringify(existing));
+      renderSavedBudgetCalculations();
+      bg.remove();
+      alert('✅ Budget calculation imported!');
+    }catch(e){
+      alert('❌ Gagal import - pastikan JSON yang dipaste betul (dari butang Copy ke Dashboard di Calculator).');
+    }
+  });
+}
+// Baca 'mo2api_mo2_budget_calculations' dari localStorage (ditulis oleh kalkulator luaran di atas) & papar terbaru dulu.
+// NOTA: ini private per-browser (macam checklist/remark) — tak sync merentasi peranti.
+// Ambil `scope` param (bukan document.getElementById) sebab fungsi ni dipanggil semasa section() MASIH
+// detached fragment (belum appendChild ke #app) — document.getElementById takkan jumpa nod belum-attached.
+function renderSavedBudgetCalculations(scope){
+  const list = (scope||document).querySelector('#savedCalcList');
+  if(!list) return;
+  let data;
+  try{ data = JSON.parse(localStorage.getItem('mo2api_mo2_budget_calculations')||'null'); }catch(e){ data = null; }
+  const calculations = (data && data.calculations) || [];
+  if(!calculations.length){ list.innerHTML = '<p style="color:var(--muted)">Tiada data simpanan lagi.</p>'; return; }
+  const sorted = calculations.slice().sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));
+  list.innerHTML = sorted.map((calc,i)=>calcDetailHTML(calc,i)).join('');
+}
+function calcDetailHTML(calc, idx){
+  const r = calc.results || {};
+  const method = r.activeMethod;
+  const date = calc.timestamp ? new Date(calc.timestamp).toLocaleDateString('ms-MY') : '—';
+  const isT1 = method === 'kaedah-purata';
+  const t = isT1 ? (r.t1||{}) : (r.t2||{});
+  const kpis = isT1
+    ? [ ['Total Bajet', fmtRM(t.totalBudget)], ['Anggaran Leads', fmtN(t.totalLeads)], ['Anggaran Enrolmen', (t.totalEnrolment||0).toFixed(1)], ['Anggaran Sales', fmtRM(t.totalSales)] ]
+    : [ ['Total Bajet (derived)', fmtRM(t.totalBudgetDerived)], ['Bajet Physical', fmtRM(t.physicalBudget)], ['Target Slot', fmtN(t.totalSlots)], ['Bajet Conversion', fmtRM(t.conversionBudget)] ];
+  const kpiHTML = kpis.map(([l,v])=>'<div class="kpi"><div class="label">'+l+'</div><div class="val" style="font-size:1.1rem">'+v+'</div></div>').join('');
+
+  const funnelRows = isT1
+    ? '<tr><td>Awareness</td><td class="num">'+fmtRM(t.awarenessBudget)+'</td></tr>'+
+      '<tr><td>&nbsp;&nbsp;— Online</td><td class="num">'+fmtRM(t.onlineBudget)+'</td></tr>'+
+      '<tr><td>&nbsp;&nbsp;— Location</td><td class="num">'+fmtRM(t.locationBudget)+'</td></tr>'+
+      '<tr><td>&nbsp;&nbsp;— Physical General</td><td class="num">'+fmtRM(t.physicalGeneralBudget)+'</td></tr>'+
+      '<tr><td>Conversion (jumlah)</td><td class="num">'+fmtRM(t.conversionBudget)+'</td></tr>'+
+      '<tr><td>Retargeting</td><td class="num">'+fmtRM(t.retargetingBudget)+'</td></tr>'
+    : '<tr><td>Awareness</td><td class="num">'+fmtRM(t.awarenessBudget)+'</td></tr>'+
+      '<tr><td>&nbsp;&nbsp;— Online</td><td class="num">'+fmtRM(t.onlineBudget)+'</td></tr>'+
+      '<tr><td>&nbsp;&nbsp;— Physical (semua center)</td><td class="num">'+fmtRM(t.physicalBudget)+'</td></tr>'+
+      '<tr><td>Conversion (jumlah)</td><td class="num">'+fmtRM(t.conversionBudget)+'</td></tr>'+
+      '<tr><td>Retargeting</td><td class="num">'+fmtRM(t.retargetingBudget)+'</td></tr>';
+
+  const weeks = t.weeks || [];
+  const weekHead = isT1
+    ? '<tr><th>Minggu</th><th class="num">%</th><th class="num">Bajet</th><th class="num">Bajet/hari</th><th class="num">Leads</th><th class="num">Enrolmen</th><th class="num">Sales</th></tr>'
+    : '<tr><th>Minggu</th><th class="num">%</th><th class="num">Bajet</th><th class="num">Bajet/hari</th><th class="num">Target Customer</th></tr>';
+  const weekRows = weeks.map(w=> isT1
+    ? '<tr><td>'+esc(w.label)+'</td><td class="num">'+(w.pct||0).toFixed(1)+'%</td><td class="num">'+fmtRM(w.budget)+'</td><td class="num">'+fmtRM(w.budgetPerDay)+'</td><td class="num">'+fmtN(w.leads)+'</td><td class="num">'+(w.enrolment||0).toFixed(1)+'</td><td class="num">'+fmtRM(w.sales)+'</td></tr>'
+    : '<tr><td>'+esc(w.label)+'</td><td class="num">'+(w.pct||0).toFixed(1)+'%</td><td class="num">'+fmtRM(w.budget)+'</td><td class="num">'+fmtRM(w.budgetPerDay)+'</td><td class="num">'+(w.targetCustomer||0).toFixed(1)+'</td></tr>'
+  ).join('');
+
+  const centers = (!isT1 && Array.isArray(t.centers)) ? t.centers : [];
+  const centerRows = centers.map(c=>'<tr><td>'+esc(c.name||'—')+'</td><td class="num">'+fmtN(c.slots)+'</td><td class="num">'+fmtRM(c.cpp)+'</td><td class="num">'+fmtRM(c.budget)+'</td></tr>').join('');
+  const centerWeeklyHTML = centers.filter(c=>Array.isArray(c.weeks)&&c.weeks.length).map(c=>
+    '<div class="note" style="margin:10px 0 2px"><b>'+esc(c.name||'—')+'</b> — Kiraan Mingguan &amp; Harian</div>'+
+    '<div class="tablewrap"><table><thead><tr><th>Minggu</th><th class="num">Bajet</th><th class="num">Bajet/hari</th><th class="num">Target Customer</th><th class="num">Target Customer/hari</th></tr></thead><tbody>'+
+      c.weeks.map(w=>'<tr><td>'+esc(w.label)+'</td><td class="num">'+fmtRM(w.budget)+'</td><td class="num">'+fmtRM(w.budgetPerDay)+'</td><td class="num">'+(w.targetCustomer||0).toFixed(1)+'</td><td class="num">'+(w.targetCustomerPerDay||0).toFixed(2)+'</td></tr>').join('')+
+    '</tbody></table></div>'
+  ).join('');
+
+  return '<details style="border:1px solid var(--border);border-radius:8px;margin-top:'+(idx===0?'0':'10px')+';overflow:hidden" '+(idx===0?'open':'')+'>'+
+    '<summary style="cursor:pointer;padding:8px 10px;background:var(--card);font-weight:700">'+esc(calc.month||'—')+' — '+esc(date)+' <span style="color:var(--muted);font-weight:400">('+(isT1?'Kaedah Purata':'Kaedah Slot')+')</span></summary>'+
+    '<div style="padding:10px">'+
+      '<div class="cards">'+kpiHTML+'</div>'+
+      '<div class="tablewrap" style="margin-top:10px"><table><thead><tr><th>Kategori</th><th class="num">Bajet/bulan</th></tr></thead><tbody>'+funnelRows+'</tbody></table></div>'+
+      (centerRows ? '<div class="note" style="margin:10px 0 2px">Slot Kosong Ikut Center</div><div class="tablewrap"><table><thead><tr><th>Center</th><th class="num">Slot</th><th class="num">CPP</th><th class="num">Bajet</th></tr></thead><tbody>'+centerRows+'</tbody></table></div>' : '')+
+      (weekRows ? '<div class="tablewrap" style="margin-top:10px"><table><thead>'+weekHead+'</thead><tbody>'+weekRows+'</tbody></table></div>' : '')+
+      centerWeeklyHTML+
+    '</div>'+
+  '</details>';
+}
+const kpi = (label,val,sub)=> '<div class="kpi"><div class="label">'+label+'</div><div class="val">'+val+'</div><div class="sub">'+(sub||'')+'</div></div>';
+
+function render2(){
+  const d = DATA.section_2_red_flags;
+  const s = section(2,'🚨 Red Flag / Alert', d.purpose);
+  const cnt = {P1:0,P2:0,P3:0};
+  d.flags.forEach(f=>cnt[f.priority]=(cnt[f.priority]||0)+1);
+  s.appendChild(el('div','note','<b>'+d.flags.length+'</b> item · P1: '+cnt.P1+' · P2: '+cnt.P2+' · P3: '+cnt.P3+' &nbsp;|&nbsp; '+d.note));
+  d.flags.forEach(f=>{
+    const pc = f.priority.toLowerCase();
+    const c = el('div','flag '+pc);
+    const ev = Object.entries(f.evidence||{}).map(([k,v])=>'<span class="chip">'+k+': '+(typeof v==='number'?(k.startsWith('cpl')||k.startsWith('spend')||k.startsWith('cpm')?fmtRM(v):fmtN(v)):v)+'</span>').join('');
+    const rkey = 'redflag:'+f.entity;
+    c.innerHTML =
+      '<div class="f-top"><span class="badge '+(f.priority==='P1'?'p-high':f.priority==='P2'?'p-med':'p-low')+'">'+f.priority+'</span>'+
+      tlBadge(f.traffic_light)+'<span class="chip">'+f.level+'</span><span class="f-entity">'+f.entity+'</span></div>'+
+      '<div class="f-issue">'+f.issue+'</div>'+
+      '<div class="f-ev">'+ev+'</div>'+
+      '<div class="f-act"><b>Cadangan:</b> '+f.suggested_action+'</div>'+
+      '<div style="margin-top:8px"><label style="font-size:.75rem;color:var(--muted)">Catatan awak (tindakan dah buat / sebab belum boleh action):</label>'+remarkWidgetHTML(rkey,false)+'</div>';
+    s.appendChild(c);
+  });
+  return s;
+}
+
+function render3(){
+  const d = DATA.section_3_account_overview;
+  const s = section(1,'📈 Account Overview', d.purpose+' · Basis CPL: '+d.cpl_basis);
+
+  s.insertAdjacentHTML('beforeend', buildExecSummary());
+
+  const wins = [['Yesterday','yesterday'],['3D','3D'],['7D','7D'],['14D','14D'],['30D','30D']];
+  const m = d.metrics;
+  const ty = d.total_this_year || {};
+  const tyTypes = ty.conversion_types || []; // auto-detect: whatever conversion types exist here get rendered
+
+  const rowsDef = [
+    { key:'spend', label:'Spend' },
+    { key:'whatsform_leads', label:'Leads', isLeads:true },
+    { key:'cpl', label:'CPL', isCpl:true },
+    { key:'impressions', label:'Impressions' },
+    { key:'reach', label:'Reach' },
+    { key:'frequency', label:'Frequency', isFreq:true }
+  ];
+  const fmtFor = (rd,v)=> (rd.key==='spend'||rd.isCpl) ? fmtRM(v) : rd.isFreq ? fmtX(v) : fmtN(v);
+
+  function windowCell(rd, winKey){
+    const mo = m[winKey] || {};
+    if(rd.isLeads){
+      const srcs = leadSourcesFor(mo);
+      if(!srcs.length) return '<td class="num">—</td>';
+      return '<td class="num">'+srcs.map(x=>x.label+': <b>'+fmtN(x.value)+'</b>').join('<br>')+'</td>';
+    }
+    if(rd.isCpl){
+      const v = mo.cpl;
+      if(v==null||isNaN(v)) return '<td class="num">—</td>';
+      const ev = cplEval(winKey, v);
+      return '<td class="num '+ev.cls+'">'+ev.dot+' '+fmtRM(v)+'</td>';
+    }
+    return '<td class="num">'+fmtFor(rd, mo[rd.key])+'</td>';
+  }
+  function totalCell(rd){
+    if(rd.isLeads){
+      if(!tyTypes.length) return '<td class="num">—</td>';
+      const lines = tyTypes.map(t=>t.label+': <b>'+fmtN(t.results)+'</b>');
+      const totalAll = tyTypes.reduce((a,t)=>a+(t.results||0),0);
+      lines.push('<b>Jumlah: '+fmtN(totalAll)+'</b>');
+      const title = 'Tempoh: '+(ty.period||'')+(ty.excluded_note?' — '+ty.excluded_note:'');
+      return '<td class="num" title="'+title+'">'+lines.join('<br>')+'</td>';
+    }
+    if(rd.isCpl){
+      if(!tyTypes.length && !ty.combined) return '<td class="num">—</td>';
+      const lines = tyTypes.map(t=>t.label+': <b>'+fmtRM(t.cpl)+'</b>');
+      if(ty.combined) lines.push('<b>Gabungan: '+fmtRM(ty.combined.cpl)+'</b>');
+      const title = 'Tempoh: '+(ty.period||'');
+      return '<td class="num" title="'+title+'">'+lines.join('<br>')+'</td>';
+    }
+    // spend / impressions / reach / frequency — direct account-level totals for the period
+    const v = ty[rd.key];
+    if(v==null) return '<td class="num">—</td>';
+    return '<td class="num" title="Tempoh: '+(ty.period||'')+'">'+fmtFor(rd, v)+'</td>';
+  }
+
+  let html='<div class="tablewrap"><table><thead><tr>'+
+      '<th class="no-sort">Metrik</th>'+
+      wins.map(w=>'<th class="no-sort">'+w[0]+'</th>').join('')+
+      '<th class="no-sort">Total (Tahun Ini)</th>'+
+    '</tr></thead><tbody>';
+  rowsDef.forEach(rd=>{
+    html += '<tr><td class="metricname">'+rd.label+'</td>'+
+      wins.map(w=>windowCell(rd,w[1])).join('')+
+      totalCell(rd)+
+      '</tr>';
+  });
+  html+='</tbody></table></div>';
+  s.insertAdjacentHTML('beforeend',html);
+  if(ty.note){
+    s.appendChild(el('div','note','ⓘ Total (Tahun Ini): '+ty.note));
+  }
+
+  s.insertAdjacentHTML('beforeend',
+    '<div class="tlref-title">Rujukan Ambang Traffic Light</div>'+
+    '<div class="tablewrap tlref-table"><table><tbody>'+
+      '<tr><th colspan="2">New Ads / Testing (Yesterday, 3D)</th></tr>'+
+      '<tr><td>🟢 GREEN</td><td>CPL RM0 – RM30</td></tr>'+
+      '<tr><td>🟡 YELLOW</td><td>CPL RM31 – RM55</td></tr>'+
+      '<tr><td>🔴 RED</td><td>CPL RM56+</td></tr>'+
+      '<tr><th colspan="2">Old / Established Ads (7D, 14D, 30D)</th></tr>'+
+      '<tr><td>🟢 GREEN</td><td>CPL RM0 – RM15</td></tr>'+
+      '<tr><td>🟡 YELLOW</td><td>CPL RM15.01 – RM29.99</td></tr>'+
+      '<tr><td>🔴 RED</td><td>CPL RM30+</td></tr>'+
+    '</tbody></table></div>');
+
+  const t = d.trend_7D_vs_14D;
+  s.appendChild(el('div','banner',
+    '<b>Traffic light akaun (CPL):</b> '+tlBadge(d.traffic_light_account_cpl)+' — '+d.traffic_light_account_cpl+'<br>'+
+    '<b>Trend 7D vs 14D:</b> CPL '+trendHTML(t.cpl)+' · CTR '+trendHTML(t.ctr)+' · CPC '+trendHTML(t.cpc)+' · CPM '+trendHTML(t.cpm)+'<br>'+
+    '<b>Trend bulanan (30D → 7D):</b> '+trendHTML(t.cpl_vs_30D)));
+  return s;
+}
+
+function render4(){
+  const d = DATA.section_4_performance_trend;
+  const s = section(7,'📉 Performance Trend', d.purpose);
+  s.insertAdjacentHTML('beforeend', buildTrendExecSummary());
+  s.appendChild(el('div','note',d.note));
+  const grid = el('div','chart-grid');
+  grid.innerHTML =
+    '<div class="chart-box"><h3>CPL mengikut window (RM) — garis putus = target 15 / 30</h3><canvas id="chartCpl" height="200"></canvas></div>'+
+    '<div class="chart-box"><h3>Spend (bar) vs Leads WhatsForm (garis)</h3><canvas id="chartSL" height="200"></canvas></div>';
+  s.appendChild(grid);
+  const dv = d.derived;
+  s.appendChild(el('div','banner',
+    '<b>CPL slope:</b> '+dv.cpl_slope+'<br>'+
+    '<b>Leads/hari:</b> Yesterday '+dv.leads_per_day_yesterday+' · 7D '+dv.leads_per_day_7D+' · 14D '+dv.leads_per_day_14D+' · 30D '+dv.leads_per_day_30D+'<br>'+
+    '<b>Observation:</b> '+dv.observation));
+  return s;
+}
+
+function render5(){
+  const d = DATA.section_5_campaign_summary;
+  const s = section(3,'🗂️ Campaign Summary', d.purpose);
+  s.insertAdjacentHTML('beforeend', buildCampaignExecSummary());
+  grid5(s);
+  const rows = d.campaigns;
+  const cols = [
+    {key:'campaign',label:'Campaign',cell:r=>'<td class="wrap-cell" title="'+r.campaign+'">'+r.campaign+'</td>'},
+    {key:'status',label:'Status',cell:r=>'<td>'+r.status+'</td>'},
+    {key:'class',label:'Kelas',cell:r=>'<td>'+r.class+'</td>'},
+    {key:'sp7',label:'Spend 7D',numeric:true,sortVal:r=>g(r.spend,'7D'),cell:r=>'<td class="num">'+fmtRM(g(r.spend,'7D'))+'</td>'},
+    {key:'sp14',label:'Spend 14D',numeric:true,sortVal:r=>g(r.spend,'14D'),cell:r=>'<td class="num">'+fmtRM(g(r.spend,'14D'))+'</td>'},
+    {key:'ld14',label:'Leads 14D',numeric:true,sortVal:r=>g(r.whatsform_leads,'14D'),cell:r=>'<td class="num">'+fmtN(g(r.whatsform_leads,'14D'))+'</td>'},
+    {key:'cpl3',label:'CPL 3D',numeric:true,sortVal:r=>g(r.cpl,'3D'),cell:r=>cplCell(g(r.cpl,'3D'))},
+    {key:'cpl7',label:'CPL 7D',numeric:true,sortVal:r=>g(r.cpl,'7D'),cell:r=>cplCell(g(r.cpl,'7D'))},
+    {key:'cpl14',label:'CPL 14D',numeric:true,sortVal:r=>g(r.cpl,'14D'),cell:r=>cplCell(g(r.cpl,'14D'))},
+    {key:'freq',label:'Freq 14D',numeric:true,sortVal:r=>r.frequency_14D,cell:r=>'<td class="num">'+fmtX(r.frequency_14D)+'</td>'},
+    {key:'tl',label:'🚦',sortVal:r=>tlClass(r.traffic_light),cell:r=>'<td>'+tlBadge(r.traffic_light)+'</td>'},
+    {key:'trend',label:'Trend',sortable:false,cell:r=>'<td>'+trendHTML(r.trend)+'</td>'},
+    {key:'act',label:'Action',sortable:false,cell:r=>'<td class="wrap-cell" title="'+(r.action||'').replace(/"/g,'&quot;')+'"><span class="badge code">'+r.action_code+'</span> '+short(r.action,90)+'</td>'},
+    {key:'remark',label:'Remark',sortable:false,cell:r=>'<td style="min-width:220px">'+remarkWidgetHTML('campaign:'+r.campaign,false)+'</td>'}
+  ];
+  s.appendChild(buildTable(cols, rows, {defaultSort:'sp14',defaultDir:'desc'}));
+  return s;
+}
+function grid5(s){
+  const camps = (DATA.section_5_campaign_summary.campaigns||[]).filter(c=>g(c.cpl,'14D')!=null && c.status==='ACTIVE');
+  const h = Math.max(220, camps.length*28);
+  const box = el('div','chart-box'); box.innerHTML='<h3>CPL 14D — campaign WhatsForm aktif (garis 15 / 30)</h3><div class="chart-wrap" style="height:'+h+'px"><canvas id="chartCamp"></canvas></div>';
+  s.appendChild(box);
+}
+
+function render6(){
+  const d = DATA.section_6_adset_summary;
+  const s = section(4,'🎯 Ad Set Summary (Fokus Utama)', d.purpose);
+  s.insertAdjacentHTML('beforeend', buildAdsetExecSummary());
+  s.appendChild(el('div','note',d.note));
+  const rows = d.adsets;
+  const filterBar = el('div','filterbtns');
+  const cols = [
+    {key:'adset',label:'Ad Set',cell:r=>'<td class="wrap-cell" title="'+r.adset+'">'+r.adset+'</td>'},
+    {key:'campaign',label:'Campaign',cell:r=>'<td title="'+r.campaign+'">'+short(r.campaign,20)+'</td>'},
+    {key:'class',label:'Kelas',cell:r=>'<td>'+r.class+'</td>'},
+    {key:'db',label:'Budget/hari',numeric:true,sortVal:r=>r.daily_budget,cell:r=>'<td class="num">'+fmtRM(r.daily_budget)+'</td>'},
+    {key:'sp7',label:'Spend 7D',numeric:true,sortVal:r=>g(r.spend,'7D'),cell:r=>'<td class="num">'+fmtRM(g(r.spend,'7D'))+'</td>'},
+    {key:'sp14',label:'Spend 14D',numeric:true,sortVal:r=>g(r.spend,'14D'),cell:r=>'<td class="num">'+fmtRM(g(r.spend,'14D'))+'</td>'},
+    {key:'ld14',label:'Leads 14D',numeric:true,sortVal:r=>g(r.whatsform_leads,'14D'),cell:r=>'<td class="num">'+fmtN(g(r.whatsform_leads,'14D'))+'</td>'},
+    {key:'cpl3',label:'CPL 3D',numeric:true,sortVal:r=>g(r.cpl,'3D'),cell:r=>cplCell(g(r.cpl,'3D'))},
+    {key:'cpl7',label:'CPL 7D',numeric:true,sortVal:r=>g(r.cpl,'7D'),cell:r=>cplCell(g(r.cpl,'7D'))},
+    {key:'cpl14',label:'CPL 14D',numeric:true,sortVal:r=>g(r.cpl,'14D'),cell:r=>cplCell(g(r.cpl,'14D'))},
+    {key:'freq',label:'Freq 14D',numeric:true,sortVal:r=>r.frequency_14D,cell:r=>'<td class="num">'+fmtX(r.frequency_14D)+'</td>'},
+    {key:'tl',label:'🚦',sortVal:r=>tlClass(r.traffic_light),cell:r=>'<td>'+tlBadge(r.traffic_light)+'</td>'},
+    {key:'trend',label:'Trend',sortable:false,cell:r=>'<td>'+trendHTML(r.trend)+'</td>'},
+    {key:'act',label:'Action',sortable:false,cell:r=>'<td class="wrap-cell" title="'+(r.action||'').replace(/"/g,'&quot;')+'"><span class="badge code">'+r.action_code+'</span> '+short(r.action,90)+'</td>'},
+    {key:'remark',label:'Remark',sortable:false,cell:r=>'<td style="min-width:220px">'+remarkWidgetHTML('adset:'+r.adset,false)+'</td>'}
+  ];
+  let tableEl = buildTable(cols, rows, {defaultSort:'cpl7',defaultDir:'desc'});
+  ['All','🔴','🟡','🟢'].forEach((lab,i)=>{
+    const b = el('button', i===0?'active':'', lab);
+    b.addEventListener('click',()=>{
+      [...filterBar.children].forEach(x=>x.classList.remove('active')); b.classList.add('active');
+      const want = ['','red','yellow','green'][i];
+      const filtered = want ? rows.filter(r=>tlClass(r.traffic_light)===want) : rows;
+      const nt = buildTable(cols, filtered, {defaultSort:'cpl7',defaultDir:'desc'});
+      tableEl.replaceWith(nt); tableEl = nt;
+    });
+    filterBar.appendChild(b);
+  });
+  s.appendChild(filterBar);
+  s.appendChild(tableEl);
+  return s;
+}
+
+function adActionText(r){
+  if(r.flag) return r.flag;
+  const tl = tlClass(r.traffic_light);
+  if(tl==='red') return 'Consider OFF / kurangkan — CPL/spend tinggi, cadang semak (bukan keputusan automatik).';
+  if(tl==='yellow') return 'Monitor — hold dahulu, pantau trend 7D/14D.';
+  if(tl==='green') return 'Maintain — teruskan, prestasi baik.';
+  return '—';
+}
+function render7(){
+  const d = DATA.section_7_ads_performance;
+  const s = section(5,'📋 Ads Performance Table', d.purpose);
+  s.insertAdjacentHTML('beforeend', buildAdsExecSummary());
+  const mk = (title, rows, has14)=>{
+    s.appendChild(el('h3', null, title));
+    const cols = [
+      {key:'ad',label:'Ad',cell:r=>'<td class="wrap-cell" title="'+r.ad+'">'+r.ad+'</td>'},
+      {key:'adset',label:'Ad Set',cell:r=>'<td title="'+r.adset+'">'+short(r.adset,22)+'</td>'},
+      {key:'sp',label:'Spend',numeric:true,sortVal:r=>r.spend,cell:r=>'<td class="num">'+fmtRM(r.spend)+'</td>'},
+      {key:'ld',label:'Leads',numeric:true,sortVal:r=>r.whatsform_leads,cell:r=>'<td class="num">'+(r.whatsform_leads==null?'—':fmtN(r.whatsform_leads))+'</td>'},
+      {key:'cpl',label:'CPL',numeric:true,sortVal:r=>r.cpl,cell:r=> r.cpl==null ? '<td class="num" title="'+(r.note||'')+'">'+(r.note?'ⓘ':'—')+'</td>' : cplCell(r.cpl)},
+      {key:'freq',label:'Freq',numeric:true,sortVal:r=>r.frequency,cell:r=>'<td class="num">'+fmtX(r.frequency)+'</td>'},
+      {key:'tl',label:'🚦',sortVal:r=>tlClass(r.traffic_light),cell:r=>'<td>'+tlBadge(r.traffic_light)+(r.flag?' <span class="chip" style="color:var(--red)">'+r.flag+'</span>':'')+'</td>'},
+      {key:'act',label:'Action',sortable:false,cell:r=>'<td class="wrap-cell">'+adActionText(r)+'</td>'},
+      {key:'remark',label:'Remark',sortable:false,cell:r=>'<td style="min-width:220px">'+remarkWidgetHTML('ad:'+r.ad,false)+'</td>'}
+    ];
+    s.appendChild(buildTable(cols, rows, {defaultSort:'sp',defaultDir:'desc'}));
+  };
+  mk('14D — semua ad aktif (spend ≥ RM20)', d.ads_14D);
+  mk('7D — top ad aktif', d.ads_7D_top);
+  return s;
+}
+
+function render8(){
+  const d = DATA.section_8_diagnostic_recommendation;
+  const s = section(8,'🩺 Diagnostic & Recommendation', d.purpose);
+  d.items.forEach(it=>{
+    const pr = it.priority.indexOf('High')>-1?'p-high':it.priority.indexOf('Med')>-1?'p-med':'p-low';
+    const c = el('div','diag');
+    c.innerHTML =
+      '<div class="d-top"><span class="badge '+pr+'">'+it.priority+'</span>'+
+      '<span class="chip">#'+it.n+' · '+it.level+'</span>'+
+      (it.needs_approval?'<span class="badge approval">PERLU KELULUSAN</span>':'<span class="badge auto">INFO / AUTO</span>')+
+      '<b>'+it.entity+'</b></div>'+
+      '<div class="d-diag">'+it.diagnosis+'</div>'+
+      '<div class="d-line"><span class="k">Bukti</span>'+it.evidence+'</div>'+
+      '<div class="d-line"><span class="k">Tindakan</span>'+it.action+'</div>'+
+      '<div class="d-line"><span class="k">Impak</span>'+it.expected_impact+'</div>';
+    s.appendChild(c);
+  });
+  return s;
+}
+
+function render9(){
+  const d = DATA.section_9_action_checklist;
+  const s = section(9,'✅ Action Checklist', d.purpose);
+  const codesLine = Object.entries(d.codes).map(([k,v])=>'<span class="badge code">'+k+'</span> '+v).join(' &nbsp; ');
+  s.appendChild(el('div','note',codesLine));
+  const saved = loadChecklist();
+  const bar = el('div','progress'); const fill = el('div','p-fill'); bar.appendChild(fill);
+  s.appendChild(bar);
+  const status = el('div','note');
+  s.appendChild(status);
+
+  const rowsWrap = el('div');
+  d.checklist.forEach((item,i)=>{
+    const id = 'chk_'+i;
+    const done = !!saved[id];
+    const row = el('div','chk-row'+(done?' done':''));
+    const cb = el('input'); cb.type='checkbox'; cb.checked=done; cb.id=id;
+    const auto = item.status.indexOf('Auto')>-1;
+    row.appendChild(cb);
+    const main = el('div','chk-main');
+    main.innerHTML =
+      '<div class="chk-act">'+item.action+'</div>'+
+      '<div class="chk-reason">'+item.entity+' — '+item.reason+'</div>'+
+      '<div class="chk-meta"><span class="badge code">'+item.code+'</span>'+
+      (auto?'<span class="badge auto">'+item.status+'</span>':'<span class="badge approval">'+item.status+'</span>')+'</div>';
+    row.appendChild(main);
+    const remarkWrap = el('div','chk-remark');
+    remarkWrap.innerHTML = remarkWidgetHTML('checklist:'+id+':'+item.entity, false);
+    row.appendChild(remarkWrap);
+    cb.addEventListener('change',()=>{
+      const st = loadChecklist(); st[id]=cb.checked; saveChecklist(st);
+      row.classList.toggle('done',cb.checked); updateProg();
+    });
+    rowsWrap.appendChild(row);
+  });
+  s.appendChild(rowsWrap);
+
+  const reset = el('button','act','↺ Reset checklist');
+  reset.style.marginTop='12px';
+  reset.addEventListener('click',()=>{ if(confirm('Reset semua tanda checklist?')){ saveChecklist({}); render(); }});
+  s.appendChild(reset);
+  s.appendChild(el('div','note','Tanda disimpan dalam browser (localStorage) — kekal selepas refresh. Ini tracking peribadi sahaja, tidak mengubah apa-apa di Meta Ads.'));
+
+  function updateProg(){
+    const st = loadChecklist();
+    const total = d.checklist.length;
+    const done = d.checklist.filter((_,i)=>st['chk_'+i]).length;
+    fill.style.width = (done/total*100)+'%';
+    status.innerHTML = '<b>'+done+' / '+total+'</b> tindakan ditanda selesai';
+  }
+  updateProg();
+  return s;
+}
+
+function render10(){
+  const d = DATA.section_10_historical_comparison;
+  const s = section(10,'📅 Historical Comparison — Bulan Ini vs Bulan Lepas', d.purpose);
+  const lm = d.metrics.last_month_full, tm = d.metrics.this_month_MTD, pj = d.metrics.this_month_projected_full;
+  const cards = el('div','cards');
+  cards.innerHTML =
+    kpi('CPL bulan lepas', fmtRM(lm.cpl), fmtN(lm.whatsform_leads)+' leads · '+fmtRM0(lm.spend_whatsform_campaigns)) +
+    kpi('CPL bulan ini (MTD)', '<span class="'+cplCls(tm.cpl)+'">'+fmtRM(tm.cpl)+'</span>', fmtN(tm.whatsform_leads)+' leads · '+fmtRM0(tm.spend_whatsform_campaigns)) +
+    kpi('CPL unjuran penuh', fmtRM(pj.cpl_proj), '≈'+fmtN(pj.whatsform_leads_proj)+' leads · '+fmtRM0(pj.spend_total_proj)) +
+    kpi('Δ CPL', (d.delta.cpl_abs>0?'+':'')+fmtRM(d.delta.cpl_abs)+' ('+d.delta.cpl_pct+'%)', 'vs bulan lepas');
+  s.appendChild(cards);
+  const box = el('div','chart-box'); box.innerHTML='<h3>CPL: Bulan lepas vs MTD vs Unjuran (garis 15 / 30)</h3><div class="chart-wrap" style="height:260px"><canvas id="chartHist"></canvas></div>';
+  s.appendChild(box);
+  s.appendChild(el('div','banner',
+    '<div class="verdict">'+tlBadge(d.delta.verdict)+' '+d.delta.verdict+'</div>'+
+    '<b>Konteks:</b> '+d.delta.context+'<br><br>'+
+    '<b>Cadangan:</b> '+d.delta.recommendation));
+  return s;
+}
+
+/* ---------- Charts ---------- */
+function drawCharts(){
+  charts.forEach(c=>{try{c.destroy()}catch(e){}}); charts=[];
+  if(currentAcct==='all' || !DATA) return;
+  if(typeof Chart==='undefined'){
+    document.querySelectorAll('.chart-box').forEach(b=>{ b.innerHTML += '<div class="note">Chart.js tidak dimuat (perlu sambungan internet untuk CDN). Jadual & data lain tetap berfungsi.</div>'; });
+    return;
+  }
+  const dark = document.documentElement.getAttribute('data-theme')!=='light';
+  const tc = dark ? '#e6edf3' : '#1a2027';
+  const gc = dark ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.08)';
+  Chart.defaults.color = tc; Chart.defaults.font.family = 'system-ui,Segoe UI,Roboto,sans-serif';
+  const thr = (v,col)=>({label:'Target '+v, data:Array(6).fill(v), type:'line', borderColor:col, borderDash:[6,4], borderWidth:1, pointRadius:0, fill:false});
+
+  // Section 4 — CPL by window
+  const sr = DATA.section_4_performance_trend.series;
+  const labels = sr.map(x=>x.window);
+  mkChart('chartCpl', {
+    type:'line',
+    data:{ labels, datasets:[
+      { label:'CPL (RM)', data:sr.map(x=>x.cpl), borderColor:'#4da3ff', backgroundColor:'rgba(77,163,255,.15)', tension:.25, fill:true, pointRadius:4 },
+      {label:'15', data:labels.map(_=>15), borderColor:'#4CAF50', borderDash:[6,4], borderWidth:1, pointRadius:0},
+      {label:'30', data:labels.map(_=>30), borderColor:'#F44336', borderDash:[6,4], borderWidth:1, pointRadius:0}
+    ]},
+    options:{ scales:{ x:{grid:{color:gc}}, y:{grid:{color:gc}, beginAtZero:true} }, plugins:{legend:{labels:{boxWidth:12}}} }
+  });
+
+  // Section 4 — Spend vs Leads
+  mkChart('chartSL', {
+    data:{ labels, datasets:[
+      { type:'bar', label:'Spend (RM)', data:sr.map(x=>x.spend), backgroundColor:'rgba(77,163,255,.5)', yAxisID:'y' },
+      { type:'line', label:'Leads', data:sr.map(x=>x.whatsform_leads), borderColor:'#4CAF50', backgroundColor:'#4CAF50', yAxisID:'y1', tension:.25, pointRadius:4 }
+    ]},
+    options:{ scales:{ x:{grid:{color:gc}}, y:{position:'left',grid:{color:gc},title:{display:true,text:'Spend RM'}}, y1:{position:'right',grid:{display:false},title:{display:true,text:'Leads'}} } }
+  });
+
+  // Section 5 — campaign CPL 14D
+  const camps = DATA.section_5_campaign_summary.campaigns.filter(c=>g(c.cpl,'14D')!=null && c.status==='ACTIVE');
+  mkChart('chartCamp', {
+    type:'bar',
+    data:{ labels:camps.map(c=>short(c.campaign,26)), datasets:[
+      { label:'CPL 14D (RM)', data:camps.map(c=>g(c.cpl,'14D')), backgroundColor:camps.map(c=>cplColor(g(c.cpl,'14D'))) },
+      { label:'15', data:camps.map(_=>15), type:'line', borderColor:'#4CAF50', borderDash:[6,4], borderWidth:1, pointRadius:0 },
+      { label:'30', data:camps.map(_=>30), type:'line', borderColor:'#F44336', borderDash:[6,4], borderWidth:1, pointRadius:0 }
+    ]},
+    options:{ indexAxis:'y', maintainAspectRatio:false, scales:{ x:{grid:{color:gc},beginAtZero:true}, y:{grid:{display:false}} }, plugins:{legend:{display:false}} }
+  });
+
+  // Section 10 — historical
+  const h = DATA.section_10_historical_comparison.metrics;
+  mkChart('chartHist', {
+    type:'bar',
+    data:{ labels:['Bulan lepas','MTD','Unjuran'], datasets:[
+      { label:'CPL (RM)', data:[h.last_month_full.cpl, h.this_month_MTD.cpl, h.this_month_projected_full.cpl_proj],
+        backgroundColor:['#607D8B', cplColor(h.this_month_MTD.cpl), cplColor(h.this_month_projected_full.cpl_proj)] },
+      { label:'15', data:[15,15,15], type:'line', borderColor:'#4CAF50', borderDash:[6,4], borderWidth:1, pointRadius:0 },
+      { label:'30', data:[30,30,30], type:'line', borderColor:'#F44336', borderDash:[6,4], borderWidth:1, pointRadius:0 }
+    ]},
+    options:{ maintainAspectRatio:false, scales:{ x:{grid:{color:gc}}, y:{grid:{color:gc}, beginAtZero:true} }, plugins:{legend:{display:false}} }
+  });
+}
+function mkChart(id, cfg){ const c = document.getElementById(id); if(!c) return; charts.push(new Chart(c, cfg)); }
+
+/* ---------- Remarks v2 (dashboard-side only — auto-save to localStorage, NEVER touches data.json/artifact) ----------
+   Setiap entiti (campaign/ad set/ad/red-flag/checklist) simpan SATU SENARAI (log) catatan berstempel masa,
+   bukan satu teks tunggal — supaya sejarah tindakan tak hilang bila catatan baru ditambah.
+   Struktur storan: { [key]: [ {ts:"YYYY-MM-DD HH:MM", text:"..."}, ... ] }  — entri terbaru di HADAPAN (index 0).
+   Guna butang "📝 Export Remarks" untuk kumpul SEMUA sejarah jadi satu JSON — copy & hantar kat Claude semasa /update-dashboard. */
+const LS_REMARKS_V1 = 'mo2api_mo2_remarks_v1';   // format lama (single text) — dibaca sekali sahaja untuk migrate
+const LS_REMARKS    = 'mo2api_mo2_remarks_v2';   // format baharu (log berstempel masa)
+
+function esc(s){ return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function pad2(n){ return String(n).padStart(2,'0'); }
+function fmtStamp(d){ return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate())+' '+pad2(d.getHours())+':'+pad2(d.getMinutes()); }
+function nowStamp(){ return fmtStamp(new Date()); }
+
+function loadRemarksV2(){ try{ return JSON.parse(localStorage.getItem(LS_REMARKS)||'{}'); }catch(e){ return {}; } }
+function saveRemarksV2(o){ try{ localStorage.setItem(LS_REMARKS, JSON.stringify(o)); }catch(e){} }
+
+// Auto-migrate v1 (single {text,updatedAt} per key) -> v2 (array of {ts,text} per key), once.
+(function migrateRemarksV1toV2(){
+  try{
+    if(localStorage.getItem(LS_REMARKS)) return; // v2 already exists — never overwrite
+    const raw = localStorage.getItem(LS_REMARKS_V1);
+    if(!raw) return;
+    const v1 = JSON.parse(raw);
+    const v2 = {};
+    Object.keys(v1||{}).forEach(k=>{
+      const r = v1[k];
+      if(r && r.text && String(r.text).trim()){
+        const d = r.updatedAt ? new Date(r.updatedAt) : new Date();
+        v2[k] = [{ ts: isNaN(d) ? nowStamp() : fmtStamp(d), text: r.text }];
+      }
+    });
+    if(Object.keys(v2).length) saveRemarksV2(v2);
+  }catch(e){}
+})();
+
+/* ---------- Firestore sync (remarks shared live across devices/team) ---------- */
+const firebaseConfig = {
+  apiKey: "AIzaSyBHf6kM0Lpw7NnzscSK1YK7kdPlWa5oUME",
+  authDomain: "minda-optima-dashboard.firebaseapp.com",
+  projectId: "minda-optima-dashboard",
+  storageBucket: "minda-optima-dashboard.firebasestorage.app",
+  messagingSenderId: "341392219677",
+  appId: "1:341392219677:web:2018bdc29c634bc05b4f2c"
+};
+let remarksDB = null;
+// Seed from localStorage first so the page paints instantly (offline-safe fallback),
+// then Firestore's realtime listener overwrites/keeps this in sync across devices.
+let remarksCache = loadRemarksV2();
+
+function docIdForRemarkKey(key){ return encodeURIComponent(key); }
+
+function refreshOpenRemarkWidget(key){
+  document.querySelectorAll('.remark-widget[data-remark-key]').forEach(widget=>{
+    if(widget.dataset.remarkKey !== key) return;
+    const bodyEl = widget.querySelector('.remark-body');
+    const wasExpanded = bodyEl ? !bodyEl.hidden : false;
+    widget.outerHTML = remarkWidgetHTML(key, wasExpanded);
+  });
+}
+
+function initRemarksSync(){
+  return; // dashboard MO2 baru: remark simpan dalam browser sahaja, tidak sync ke Firebase dashboard lama
+  try{
+    if(!window.firebase){ console.warn('Firebase SDK gagal load — remark guna localStorage sahaja.'); return; }
+    if(!firebase.apps || !firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    remarksDB = firebase.firestore();
+    remarksDB.collection('remarks').onSnapshot(snap=>{
+      snap.docChanges().forEach(change=>{
+        const data = change.doc.data();
+        if(!data || !data.key) return;
+        let entries = Array.isArray(data.entries) ? data.entries.slice() : [];
+        entries.sort((a,b)=> String(b && b.ts||'').localeCompare(String(a && a.ts||''))); // newest first
+        remarksCache[data.key] = entries;
+        refreshOpenRemarkWidget(data.key);
+      });
+      saveRemarksV2(remarksCache); // keep localStorage as offline fallback in sync too
+    }, err=>{
+      console.error('Remarks sync error (guna localStorage sahaja buat masa ni):', err);
+    });
+  }catch(e){ console.error('initRemarksSync gagal:', e); }
+}
+initRemarksSync();
+
+function getRemarkEntries(key){
+  const arr = remarksCache[key];
+  return Array.isArray(arr) ? arr : [];
+}
+function appendRemarkEntry(key, text){
+  const entry = { ts: nowStamp(), text: text };
+  if(!Array.isArray(remarksCache[key])) remarksCache[key] = [];
+  remarksCache[key].unshift(entry); // optimistic local update — instant UI feedback
+  saveRemarksV2(remarksCache);
+  if(remarksDB){
+    remarksDB.collection('remarks').doc(docIdForRemarkKey(key)).set({
+      key: key,
+      entries: firebase.firestore.FieldValue.arrayUnion(entry)
+    }, { merge: true }).catch(err=>{ console.error('Remark gagal sync ke Firestore (tersimpan local sahaja):', err); });
   }
 }
-$("#reload").onclick=load;
-$("#theme").onclick=()=>{
-  const r=document.documentElement, dark=getComputedStyle(r).getPropertyValue("--bg").trim()==="#0d1117";
-  r.dataset.theme=dark?"light":"dark";
-  try{localStorage.setItem("mo2-theme",r.dataset.theme);}catch(e){}
-  if(DATA) charts_();
-};
-try{const t=localStorage.getItem("mo2-theme");if(t)document.documentElement.dataset.theme=t;}catch(e){}
-load();
+
+// Renders the 3-part remark UI: collapsed toggle -> expand -> history log (newest on top) + input box.
+function remarkWidgetHTML(key, expanded){
+  const entries = getRemarkEntries(key);
+  const count = entries.length;
+  const historyHTML = entries.length
+    ? entries.map(e=>'<div class="remark-entry"><span class="remark-ts">['+esc(e.ts)+']</span> <span class="remark-text">'+esc(e.text)+'</span></div>').join('')
+    : '<div class="remark-empty">Tiada catatan lagi.</div>';
+  return (
+    '<div class="remark-widget" data-remark-key="'+esc(key)+'">'+
+      '<div class="remark-toggle">📝 Remark (<span class="remark-count">'+count+'</span> entries) <span class="remark-caret">'+(expanded?'▲':'▼')+'</span></div>'+
+      '<div class="remark-body"'+(expanded?'':' hidden')+'>'+
+        '<div class="remark-history">'+historyHTML+'</div>'+
+        '<textarea class="remark-input" placeholder="Tambah catatan baru... (auto-save bila klik luar kotak ni)" rows="2"></textarea>'+
+      '</div>'+
+    '</div>'
+  );
+}
+// Toggle expand/collapse — event delegation (widgets get rebuilt on table sort/filter/re-render).
+document.addEventListener('click', e=>{
+  const toggle = e.target.closest && e.target.closest('.remark-toggle');
+  if(!toggle) return;
+  const widget = toggle.closest('.remark-widget');
+  const body = widget.querySelector('.remark-body');
+  body.hidden = !body.hidden;
+  const caret = toggle.querySelector('.remark-caret');
+  if(caret) caret.textContent = body.hidden ? '▼' : '▲';
+});
+// Auto-append on blur (focusout bubbles, unlike blur) — never overwrite, always append a new timestamped entry.
+// The outerHTML swap is deferred with setTimeout: replacing/removing the element from inside its own
+// blur/focusout handler can throw "NotFoundError: ...Perhaps it was moved in a 'blur' event handler" in
+// some browsers, since that counts as moving the very node whose blur is still being processed.
+document.addEventListener('focusout', e=>{
+  const ta = e.target;
+  if(!(ta && ta.classList && ta.classList.contains('remark-input'))) return;
+  const text = ta.value.trim();
+  if(!text) return;
+  const widget = ta.closest('.remark-widget');
+  const key = widget.dataset.remarkKey;
+  appendRemarkEntry(key, text);
+  setTimeout(()=>{ widget.outerHTML = remarkWidgetHTML(key, true); }, 0); // stay expanded so the new entry is visible
+});
+
+function exportRemarksJSON(){
+  const o = loadRemarksV2();
+  const keys = Object.keys(o).filter(k=>Array.isArray(o[k]) && o[k].length);
+  const payload = {
+    exported_at: new Date().toISOString(),
+    account: (typeof DATA!=='undefined' && DATA._meta) ? DATA._meta.account_id : undefined,
+    count: keys.length,
+    remarks: keys.map(k=>({ key:k, entries:o[k] }))
+  };
+  return JSON.stringify(payload, null, 2);
+}
+function showExportRemarksModal(){
+  const json = exportRemarksJSON();
+  const bg = el('div','remark-modal-bg');
+  const n = (JSON.parse(json).count)||0;
+  bg.innerHTML =
+    '<div class="remark-modal">'+
+      '<b>📝 Export Remarks ('+n+' entiti)</b>'+
+      '<div class="note" style="margin:0">Copy semua teks di bawah, hantar terus kat Claude semasa jalankan /update-dashboard esok — sejarah catatan akan dipadankan semula ikut nama campaign/ad set/ad.</div>'+
+      '<textarea readonly onclick="this.select()">'+esc(json)+'</textarea>'+
+      '<div class="rm-actions">'+
+        '<button class="act" id="rmCopyBtn">📋 Copy</button>'+
+        '<button class="act" id="rmCloseBtn">Tutup</button>'+
+      '</div>'+
+    '</div>';
+  document.body.appendChild(bg);
+  const ta = bg.querySelector('textarea');
+  bg.querySelector('#rmCloseBtn').addEventListener('click',()=>bg.remove());
+  bg.addEventListener('click',e=>{ if(e.target===bg) bg.remove(); });
+  bg.querySelector('#rmCopyBtn').addEventListener('click',async()=>{
+    ta.select();
+    try{ await navigator.clipboard.writeText(json); bg.querySelector('#rmCopyBtn').textContent='✅ Disalin'; }
+    catch(e){ document.execCommand('copy'); bg.querySelector('#rmCopyBtn').textContent='✅ Disalin'; }
+    setTimeout(()=>{ const b=bg.querySelector('#rmCopyBtn'); if(b) b.textContent='📋 Copy'; },1500);
+  });
+}
+$('#btnExportRemarks').addEventListener('click', showExportRemarksModal);
+
+/* ---------- localStorage ---------- */
+const LS_THEME='mo2api_mo2_theme';
+const lsChkKey = ()=> currentAcct==='mo2' ? 'mo2api_mo2_checklist_v1' : 'mo2api_mo2_checklist_v1_'+currentAcct;
+function loadChecklist(){ try{ return JSON.parse(localStorage.getItem(lsChkKey())||'{}'); }catch(e){ return {}; } }
+function saveChecklist(o){ try{ localStorage.setItem(lsChkKey(), JSON.stringify(o)); }catch(e){} }
+
+/* ---------- Render all ---------- */
+function render(){
+  const app = $('#app'); app.innerHTML='';
+  $('#secnav').hidden = false;
+  $('#headSub').textContent = DATA._meta.account_name+' · Account '+DATA._meta.account_id+' · '+DATA._meta.currency+' · Tracking: '+DATA._meta.tracking+' · Data: '+DATA._meta.generated_at;
+  // Section order: Account(1) · Red Flags(2) · Campaign(3) · Ad Set(4) · Ads(5) · Budget(6) · Trend(7) · Diagnostic(8) · Checklist(9) · Historical(10)
+  [render3,render2,render5,render6,render7,render1,render4,render8,render9,render10].forEach(fn=>app.appendChild(fn()));
+  // section tab nav
+  const nav=$('#secnav'); nav.innerHTML='';
+  SEC_TITLES.forEach((t,i)=>{
+    const b=el('button',null,(i+1)+'. '+t);
+    b.dataset.sec=i+1;
+    b.addEventListener('click',()=>showSection(i+1));
+    nav.appendChild(b);
+  });
+  // footer (Legend — collapsible, default collapsed)
+  const f=$('#footer');
+  f.innerHTML =
+    '<div class="legend-head" id="legendHead"><b>Legend</b><button class="legend-toggle" id="legendToggle">[+]</button></div>'+
+    '<div class="legend-body" id="legendBody" hidden>'+
+      '<ul>'+DATA._meta.IMPORTANT_NOTES.map(n=>'<li>'+n+'</li>').join('')+'</ul>'+
+      '<div style="margin-top:8px">Traffic light — New ads: 🟢 RM0-30 · 🟡 RM31-55 · 🔴 RM56+ &nbsp;|&nbsp; Old ads (7D/14D CPL): 🟢 RM0-15 · 🟡 RM15.01-29.99 · 🔴 RM30+</div>'+
+      '<div style="margin-top:6px">Sumber: '+DATA._meta.data_source+' · Dijana '+DATA._meta.generated_at+'</div>'+
+    '</div>';
+  function toggleLegend(){
+    const body = $('#legendBody'), btn = $('#legendToggle');
+    body.hidden = !body.hidden;
+    btn.textContent = body.hidden ? '[+]' : '[-]';
+  }
+  $('#legendHead').addEventListener('click', toggleLegend);
+  drawCharts();
+  showSection(currentSection);
+}
+
+
+/* ---------- Account router ---------- */
+function renderAcctNav(){
+  const nav = $('#acctnav'); nav.innerHTML='';
+  [{key:'all',name:'🌐 Gabungan'}].concat(ACCOUNTS).forEach(a=>{
+    const miss = a.key!=='all' && !DATASETS[a.key];
+    const b = el('button', null, esc(a.name) + (miss?' <span class="acct-miss">(tiada data)</span>':''));
+    b.dataset.acct = a.key;
+    b.classList.toggle('active', a.key===currentAcct);
+    b.addEventListener('click',()=>switchAccount(a.key));
+    nav.appendChild(b);
+  });
+}
+function switchAccount(k){
+  currentAcct = k;
+  try{ localStorage.setItem('mo2api_mo_current_acct', k); }catch(e){}
+  renderCurrent();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function renderCurrent(){
+  renderAcctNav();
+  if(currentAcct==='all'){ DATA=null; renderCombined(); return; }
+  if(!DATASETS[currentAcct]){
+    DATA=null; drawCharts();
+    $('#secnav').hidden = true; $('#footer').innerHTML='';
+    const acc = ACCOUNTS.find(a=>a.key===currentAcct) || {name:currentAcct};
+    $('#headSub').textContent = acc.name + ' · data belum tersedia';
+    $('#app').innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted)">⚠ Data untuk <b>'+esc(acc.name)+'</b> belum ada dalam data.json.<br>Scheduled task akan isi secara automatik pada run seterusnya.</div>';
+    return;
+  }
+  DATA = DATASETS[currentAcct];
+  render();
+}
+
+/* ---------- Combined (Gabungan) front page ---------- */
+const CMB_WINDOWS = [['yesterday','Semalam'],['3D','3 Hari'],['7D','7 Hari'],['14D','14 Hari'],['30D','30 Hari'],['this_month','Bulan ini (MTD)'],['last_month','Bulan lepas']];
+function cmbSum(list, win){
+  const o={spend:0,leads:0,impressions:0,link_click:0,n:0};
+  list.forEach(([a,d])=>{
+    const m = ((d.section_3_account_overview||{}).metrics||{})[win];
+    if(!m) return;
+    const imp = +m.impressions||0;
+    o.spend += +m.spend||0; o.leads += sumLeads(m)||0; o.impressions += imp;
+    o.link_click += m.link_click!=null ? +m.link_click : (m.ctr!=null ? imp*m.ctr/100 : 0); o.n++;
+  });
+  o.cpl = o.leads ? o.spend/o.leads : null;
+  o.ctr = o.impressions ? o.link_click/o.impressions*100 : null;
+  o.cpm = o.impressions ? o.spend/o.impressions*1000 : null;
+  return o;
+}
+function acctLight(cpl){
+  if(cpl==null) return '⚪ —';
+  return cpl<=15 ? '🟢 GREEN' : (cpl<30 ? '🟡 YELLOW' : '🔴 RED');
+}
+function renderCombined(){
+  drawCharts();
+  $('#secnav').hidden = true;
+  const app = $('#app'); app.innerHTML='';
+  const list = ACCOUNTS.filter(a=>DATASETS[a.key]).map(a=>[a, DATASETS[a.key]]);
+  const missing = ACCOUNTS.filter(a=>!DATASETS[a.key]);
+  $('#headSub').textContent = 'Gabungan '+list.length+' account · MYR · '+list.map(([a,d])=>a.name+' ('+((d._meta||{}).generated_at||'—')+')').join(' · ');
+
+  // --- Headline KPI
+  const s = el('section','sec'); s.id='s1';
+  s.innerHTML = '<div class="sec-head"><span class="sec-num">GABUNGAN</span><h2>🌐 Ringkasan Semua Account</h2></div>'+
+    '<div class="sec-purpose">Total semua ad account Minda Optima. Lead = semua conversion lead yang dikesan tiap account (auto-detect). Klik nama account di bawah untuk dashboard penuh.</div>';
+  const y = cmbSum(list,'yesterday'), w7 = cmbSum(list,'7D'), mtd = cmbSum(list,'this_month'), lm = cmbSum(list,'last_month');
+  let budget=0, spendY=0;
+  list.forEach(([a,d])=>{ const b=d.section_1_budget_card||{}; budget += +b.daily_budget_total_active_ABO||0; spendY += +b.spend_yesterday||0; });
+  const cards = el('div','cards');
+  cards.innerHTML =
+    kpi('Spend semalam', fmtRM(y.spend), fmtN(y.leads)+' lead · CPL '+fmtRM(y.cpl)) +
+    kpi('Spend 7 hari', fmtRM(w7.spend), fmtN(w7.leads)+' lead') +
+    kpi('CPL 7 hari', fmtRM(w7.cpl), acctLight(w7.cpl)) +
+    kpi('CPL bulan ini', fmtRM(mtd.cpl), 'bulan lepas '+fmtRM(lm.cpl)) +
+    kpi('Budget harian aktif', fmtRM0(budget), budget ? 'spend semalam '+Math.round(spendY/budget*100)+'% drpd budget' : '');
+  s.appendChild(cards);
+
+  // --- Window table
+  let t = '<div class="tablewrap" style="margin-top:14px"><table><thead><tr><th>Tempoh</th><th class="num">Spend</th><th class="num">Lead</th><th class="num">CPL</th><th class="num">Impressions</th><th class="num">CTR</th><th class="num">CPM</th></tr></thead><tbody>';
+  CMB_WINDOWS.forEach(([k,l])=>{
+    const o = cmbSum(list,k);
+    t += '<tr><td>'+l+'</td><td class="num">'+fmtRM(o.spend)+'</td><td class="num">'+fmtN(o.leads)+'</td><td class="num">'+fmtRM(o.cpl)+'</td><td class="num">'+fmtN(o.impressions)+'</td><td class="num">'+(o.ctr==null?'—':o.ctr.toFixed(2)+'%')+'</td><td class="num">'+fmtRM(o.cpm)+'</td></tr>';
+  });
+  t += '</tbody></table></div>';
+  s.insertAdjacentHTML('beforeend', t);
+  app.appendChild(s);
+
+  // --- Per account breakdown
+  const s2 = el('section','sec'); s2.id='s2';
+  s2.innerHTML = '<div class="sec-head"><span class="sec-num">ACCOUNT</span><h2>📂 Pecahan Ikut Account (7 hari)</h2></div>'+
+    '<div class="sec-purpose">Banding prestasi setiap account. Traffic light ikut rule CPL account (🟢 ≤RM15 · 🟡 RM15.01–29.99 · 🔴 ≥RM30).</div>';
+  let t2 = '<div class="tablewrap"><table><thead><tr><th>Account</th><th class="num">Spend 7D</th><th class="num">% spend</th><th class="num">Lead 7D</th><th class="num">CPL 7D</th><th>Status</th><th class="num">CPL MTD</th><th class="num">Budget/hari</th><th class="num">Red flag</th><th>Data</th></tr></thead><tbody>';
+  list.forEach(([a,d])=>{
+    const m = (d.section_3_account_overview||{}).metrics||{};
+    const m7 = m['7D']||{}, mt = m.this_month||{};
+    const flags = ((d.section_2_red_flags||{}).flags||[]);
+    const high = flags.filter(f=>/RED|HIGH/i.test((f.traffic_light||'')+(f.level||''))).length;
+    t2 += '<tr class="acct-row" data-acct="'+a.key+'"><td><b>'+esc(a.name)+'</b><br><small style="color:var(--muted)">'+esc((d._meta||{}).account_id||'')+'</small></td>'+
+      '<td class="num">'+fmtRM(m7.spend)+'</td>'+
+      '<td class="num">'+(w7.spend? (100*(+m7.spend||0)/w7.spend).toFixed(0)+'%':'—')+'</td>'+
+      '<td class="num">'+fmtN(sumLeads(m7))+'</td>'+
+      '<td class="num">'+fmtRM(m7.cpl)+'</td>'+
+      '<td>'+acctLight(m7.cpl)+'</td>'+
+      '<td class="num">'+fmtRM(mt.cpl)+'</td>'+
+      '<td class="num">'+fmtRM0((d.section_1_budget_card||{}).daily_budget_total_active_ABO)+'</td>'+
+      '<td class="num">'+flags.length+(high?' <small>('+high+' 🔴)</small>':'')+'</td>'+
+      '<td><small>'+esc(((d._meta||{}).generated_at||'—').replace('T',' ').slice(0,16))+'</small></td></tr>';
+  });
+  missing.forEach(a=>{
+    t2 += '<tr class="acct-row" data-acct="'+a.key+'"><td><b>'+esc(a.name)+'</b></td><td colspan="9" style="color:var(--muted)">Belum ada dalam data.json — akan muncul selepas data.json baru di-upload.</td></tr>';
+  });
+  t2 += '</tbody></table></div>';
+  s2.insertAdjacentHTML('beforeend', t2);
+  s2.querySelectorAll('tr.acct-row').forEach(r=>r.addEventListener('click',()=>switchAccount(r.dataset.acct)));
+  app.appendChild(s2);
+
+  // --- Total tahun ini (gabungan)
+  const s3 = el('section','sec'); s3.id='s3';
+  s3.innerHTML = '<div class="sec-head"><span class="sec-num">YTD</span><h2>📅 Total Tahun Ini (Gabungan)</h2></div>';
+  let ySpend=0, yLeadSpend=0, yLeads=0; const periods=[];
+  list.forEach(([a,d])=>{
+    const ty = (d.section_3_account_overview||{}).total_this_year;
+    if(!ty) return;
+    ySpend += +ty.spend||0;
+    const c = ty.combined||{};
+    yLeads += +c.results||0; yLeadSpend += +c.spend||0;
+    periods.push(a.name+': '+(ty.period||'—'));
+  });
+  const yc = el('div','cards');
+  yc.innerHTML =
+    kpi('Spend tahun ini', fmtRM(ySpend), 'semua campaign (termasuk awareness)') +
+    kpi('Lead tahun ini', fmtN(yLeads), 'gabungan semua account') +
+    kpi('CPL tahun ini', fmtRM(yLeads? yLeadSpend/yLeads : null), 'spend campaign lead ÷ lead');
+  s3.appendChild(yc);
+  s3.appendChild(el('div','note', 'Tempoh dikira: '+esc(periods.join(' · '))));
+  app.appendChild(s3);
+
+  // --- Red flags gabungan (ringkas)
+  const s4 = el('section','sec'); s4.id='s4';
+  s4.innerHTML = '<div class="sec-head"><span class="sec-num">FLAG</span><h2>🚩 Red Flag Semua Account</h2></div>';
+  let fl = '';
+  list.forEach(([a,d])=>{
+    ((d.section_2_red_flags||{}).flags||[]).forEach(f=>{
+      fl += '<tr class="acct-row" data-acct="'+a.key+'"><td>'+esc(a.name)+'</td><td>'+esc(f.priority||'')+'</td><td>'+esc(f.traffic_light||'')+'</td><td>'+esc(f.entity||'')+'</td><td>'+esc(f.issue||'')+'</td></tr>';
+    });
+  });
+  s4.insertAdjacentHTML('beforeend', fl
+    ? '<div class="tablewrap"><table><thead><tr><th>Account</th><th>P</th><th>Status</th><th>Entity</th><th>Isu</th></tr></thead><tbody>'+fl+'</tbody></table></div>'
+    : '<div class="note">Tiada red flag. 👍</div>');
+  s4.querySelectorAll('tr.acct-row').forEach(r=>r.addEventListener('click',()=>switchAccount(r.dataset.acct)));
+  app.appendChild(s4);
+
+  $('#footer').innerHTML = missing.length ? '<div class="note">Belum ada data: '+missing.map(a=>esc(a.name)).join(', ')+'.</div>' : '';
+}
+
+/* ---------- Section tabs: show one, hide the rest ---------- */
+function showSection(n){
+  currentSection = n;
+  for(let i=1;i<=10;i++){
+    const sec = document.getElementById('s'+i);
+    if(sec) sec.hidden = (i!==n);
+  }
+  document.querySelectorAll('#secnav button').forEach(b=>{
+    b.classList.toggle('active', Number(b.dataset.sec)===n);
+  });
+  // charts inside a hidden section render at 0px — resize once it is visible
+  requestAnimationFrame(()=>{ charts.forEach(c=>{ try{ c.resize(); }catch(e){} }); });
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ---------- Controls ---------- */
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  try{ localStorage.setItem(LS_THEME,t); }catch(e){}
+  drawCharts();
+}
+$('#btnTheme').addEventListener('click',()=>{
+  const cur = document.documentElement.getAttribute('data-theme')==='light' ? 'dark':'light';
+  setTheme(cur);
+});
+/* ---------- Export visible section as PDF ---------- */
+const cssVar = n => (getComputedStyle(document.documentElement).getPropertyValue(n)||'').trim();
+async function exportSectionPDF(){
+  const btn = $('#btnPdf'), msg = $('#refreshMsg');
+  const target = document.getElementById('s'+currentSection);
+  if(!target) return;
+  const slug = SEC_SLUGS[currentSection-1];
+  const fname = slug+'-'+new Date().toISOString().slice(0,10)+'.pdf';
+
+  if(typeof html2canvas==='undefined' || !window.jspdf){
+    msg.textContent='⚠ Pustaka PDF tak dimuat (perlu internet). Membuka dialog Print → pilih "Save as PDF".';
+    setTimeout(()=>{ msg.textContent=''; }, 8000);
+    window.print();
+    return;
+  }
+
+  btn.disabled = true;
+  const oldLabel = btn.textContent;
+  btn.textContent = '⏳ Menyedia PDF…';
+  msg.textContent = 'Merakam "'+SEC_TITLES[currentSection-1]+'"…';
+  const bg = cssVar('--bg') || '#0f141a';
+
+  document.body.classList.add('exporting');
+  target.style.width = 'max-content';
+  await new Promise(r=>setTimeout(r, 80));
+  const capW = Math.min(2600, Math.max(target.scrollWidth, 920));
+
+  try{
+    const canvas = await html2canvas(target, {
+      scale: 2, backgroundColor: bg, width: capW, windowWidth: capW,
+      scrollX: 0, scrollY: -window.scrollY, useCORS: true, logging: false
+    });
+    target.style.width = '';
+    document.body.classList.remove('exporting');
+
+    const { jsPDF } = window.jspdf;
+    const landscape = canvas.width >= canvas.height;
+    const pdf = new jsPDF({ orientation: landscape ? 'l' : 'p', unit: 'pt', format: 'a4' });
+    const M = 22;
+    const pageW = pdf.internal.pageSize.getWidth();
+    const pageH = pdf.internal.pageSize.getHeight();
+    const imgW  = pageW - M*2;
+    const pxPerPt = canvas.width / imgW;
+    const fullH = canvas.height / pxPerPt;
+
+    if(fullH <= pageH - M*2){
+      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', M, M, imgW, fullH);
+    } else {
+      const chunkPx = Math.floor((pageH - M*2) * pxPerPt);
+      const tmp = document.createElement('canvas');
+      const ctx = tmp.getContext('2d');
+      let sy = 0, page = 0;
+      while(sy < canvas.height){
+        const sh = Math.min(chunkPx, canvas.height - sy);
+        tmp.width = canvas.width; tmp.height = sh;
+        ctx.fillStyle = bg; ctx.fillRect(0, 0, tmp.width, tmp.height);
+        ctx.drawImage(canvas, 0, sy, canvas.width, sh, 0, 0, canvas.width, sh);
+        if(page > 0) pdf.addPage();
+        pdf.addImage(tmp.toDataURL('image/png'), 'PNG', M, M, imgW, sh / pxPerPt);
+        sy += sh; page++;
+      }
+    }
+    pdf.save(fname);
+    msg.textContent = '✓ PDF dimuat turun: '+fname;
+  }catch(e){
+    target.style.width = '';
+    document.body.classList.remove('exporting');
+    msg.textContent = '⚠ Gagal jana PDF ('+(e && e.message || e)+'). Cuba Print → Save as PDF.';
+  }finally{
+    btn.disabled = false;
+    btn.textContent = oldLabel;
+    setTimeout(()=>{ if(msg.textContent.startsWith('✓')||msg.textContent.startsWith('⚠')) msg.textContent=''; }, 9000);
+  }
+}
+$('#btnPdf').addEventListener('click', exportSectionPDF);
+
+$('#btnRefresh').addEventListener('click', async ()=>{
+  // Re-fetch data.json from GitHub (fresh data pulled by scheduled task).
+  const msg=$('#refreshMsg');
+  msg.textContent='⏳ Menarik data terkini...';
+  try{
+    await fetchAll();
+    renderCurrent();
+    msg.textContent='✓ Dikemaskini ('+new Date().toLocaleTimeString('en-GB')+')';
+  }catch(e){
+    msg.textContent='⚠ Gagal tarik data.json: '+e.message;
+  }
+  setTimeout(()=>{ msg.textContent=''; }, 6000);
+});
+
+/* ---------- Init ---------- */
+(async function init(){
+  let t='dark';
+  try{ t = localStorage.getItem(LS_THEME) || 'dark'; }catch(e){}
+  document.documentElement.setAttribute('data-theme', t);
+  const app = $('#app');
+  app.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted)">⏳ Memuatkan data...</div>';
+  try{
+    await fetchAll();
+  }catch(e){
+    app.innerHTML = '<div style="padding:40px;text-align:center;color:var(--red)">⚠ Gagal muat data.<br>Pastikan fail data.json wujud dlm folder sama dgn dashboard.html.<br><small>'+e.message+'</small></div>';
+    return;
+  }
+  if(new URLSearchParams(window.location.search).get('mo2_calc_import') && DATASETS.mo2) currentAcct='mo2';
+  renderCurrent();
+  importCalculationFromLink(); // selepas render() — pastikan #savedCalcList wujud dlm DOM sebenar
 })();
 </script>
 </body>
