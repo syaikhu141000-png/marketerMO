@@ -23,7 +23,7 @@ kalau nak, sambung dari sistem sales (Google Sheet / CRM) pada fasa seterusnya.
 ## 3. Seni bina
 
 ```
-                 GitHub Actions cron 5:07 pagi MYT (21:07 UTC)
+                 GitHub Actions Claude scheduled task 5:08 pagi MYT (sandaran: GitHub Actions manual)
 Meta Marketing API  ───────────────►  worker/run_build.mjs  ──►  Cloudflare KV (melalui Cloudflare API)
  (graph.facebook.com)                  (guna src/build.js)        "data"       = data dashboard terkini
                                                                "history:YYYY-MM-DD" = snapshot harian (~13 bulan)
@@ -33,10 +33,10 @@ Pelayar / staff portal  ◄── GET / , /api/data , /api/notes ── Cloudfla
 ```
 
 - **Hosting dashboard:** satu Cloudflare Worker (`mo2-dashboard`, pelan percuma). Worker cuma papar dashboard, simpan notes dan sajikan API.
-- **Enjin data:** GitHub Actions (`.github/workflows/refresh-dashboard.yml`, percuma untuk repo public) jalankan `worker/run_build.mjs`
-  setiap hari `7 21 * * *` (UTC) = 5:07 pagi waktu Malaysia (GitHub kadang lewat 5-30 minit). Tarik data **semalam**.
+- **Enjin data:** `worker/run_build.mjs` dijalankan setiap hari 5:08 pagi waktu Malaysia oleh scheduled task Claude (token Meta & Cloudflare
+  disimpan dalam environment Claude). Sandaran: GitHub Actions `.github/workflows/refresh-dashboard.yml` (manual, perlu GitHub Secrets). Tarik data **semalam**.
   Kerja berat dibuat di GitHub supaya Worker tak kena had CPU 10ms pelan percuma Cloudflare.
-- **Tarik sekarang:** GitHub → Actions → "Tarik data MO2 (harian)" → Run workflow.
+- **Tarik sekarang:** jalankan `worker/run_build.mjs` (lihat env dalam fail workflow), atau GitHub → Actions → Run workflow (kalau Secrets diisi).
 - **Storan:** Cloudflare KV (binding `KV`).
 - **Kod sumber:** repo `marketerMO`, folder `worker/`. Logik yang sama dalam Python: `scripts/build_dashboard_data.py`.
 
@@ -46,6 +46,7 @@ Pelayar / staff portal  ◄── GET / , /api/data , /api/notes ── Cloudfla
 |---|---|---|
 | GET | `/` | Dashboard (HTML) |
 | GET | `/data.json` atau `/api/data` | Data penuh dashboard (JSON, CORS dibuka) |
+| GET | `/api/daily` | Data harian setiap ad (untuk pemilih tarikh): `rows` = `[tarikh, ad_id, spend, impressions, link_click, whatsform, website_lead]`, plus `campaigns/adsets/ads` (nama, status, `aw`=1 AWARENESS). Run pertama 90 hari, kemudian 28 hari terakhir ditarik semula setiap pagi, sejarah disimpan sehingga 400 hari |
 | GET | `/api/status` | Status run terakhir: `ok`, `finished_at`, `data_until`, `error` |
 | GET | `/api/notes` | Semua notes: `{ "<key>": [ {"ts":"YYYY-MM-DD HH:MM","text":"..."} ] }` (terbaru dahulu) |
 | POST | `/api/notes` | Tambah note. Body: `{"key":"campaign:NAMA CAMPAIGN","text":"..."}` |
@@ -85,6 +86,10 @@ Format `key` notes: `campaign:<nama>`, `adset:<nama>`, `ad:<nama>`, `redflag:<en
 
 Window: `yesterday` = semalam, `3D/7D/14D/30D` = N hari berakhir semalam, `this_month` = 1hb hingga semalam,
 `last_month` = bulan lepas penuh. Semua ikut zon `Asia/Kuala_Lumpur`. Mata wang MYR.
+
+**Seksyen 11 "📅 Pilih Tarikh"** (macam Ads Manager): pilih Semalam / 7 / 14 / 30 / 90 hari / Bulan ini / Bulan lepas / tarikh tersuai,
+banding dengan tempoh sebelum, pecahan Campaign / Ad Set / Ad. Semua dikira dalam browser dari `/api/daily`.
+Reach & frequency tidak dipaparkan untuk julat ni (tak boleh dicampur antara hari).
 
 ## 6. Peraturan bisnes
 
