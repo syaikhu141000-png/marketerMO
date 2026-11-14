@@ -3,3 +3,6 @@
 service-account*.json
 __pycache__/
 *.pyc
+
+.refresh_key
+worker/.refresh_key

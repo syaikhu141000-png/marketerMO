@@ -1,0 +1,25 @@
+# Konfigurasi rujukan untuk deploy guna Wrangler (cth. bila IT pindah ke akaun Cloudflare syarikat).
+# Deploy semasa dibuat melalui worker/deploy.py (Cloudflare API terus).
+name = "mo2-dashboard"
+main = "src/index.js"
+compatibility_date = "2025-01-01"
+workers_dev = true
+
+rules = [
+  { type = "Text", globs = ["**/*.html", "**/*.md"], fallthrough = true }
+]
+
+[triggers]
+crons = ["30 21 * * *"]   # 5:30 pagi waktu Malaysia
+
+[vars]
+META_AD_ACCOUNT_ID = "act_863467445706037"
+META_API_VERSION = "v23.0"
+
+[[kv_namespaces]]
+binding = "KV"
+id = "GANTI_DENGAN_ID_KV"   # wrangler kv namespace create mo2-dashboard
+
+# Secrets (jangan tulis di sini):
+#   wrangler secret put META_ACCESS_TOKEN
+#   wrangler secret put REFRESH_KEY
