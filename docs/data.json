@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generated_at": "2026-11-13T19:38:21+08:00",
+  "generated_at": "2026-11-14T10:03:17+08:00",
   "account_name": "Minda Optima 2",
   "currency": "MYR",
   "timezone": "Asia/Kuala_Lumpur",
@@ -8,15 +8,6 @@
   "note": "Hasil = Lead + WhatsFormSubmit. Chat WhatsApp tidak dikira. Data sehingga semalam."
  },
  "daily": [
-  {
-   "date": "2026-10-14",
-   "spend": 1809.99,
-   "impressions": 192065,
-   "clicks": 2747,
-   "lead": 18,
-   "form": 61,
-   "results": 79
-  },
   {
    "date": "2026-10-15",
    "spend": 1876.0,
@@ -271,12 +262,21 @@
   },
   {
    "date": "2026-11-12",
-   "spend": 617.14,
-   "impressions": 37788,
+   "spend": 617.18,
+   "impressions": 37794,
    "clicks": 1030,
    "lead": 1,
    "form": 21,
    "results": 22
+  },
+  {
+   "date": "2026-11-13",
+   "spend": 56.15,
+   "impressions": 10723,
+   "clicks": 445,
+   "lead": 0,
+   "form": 0,
+   "results": 0
   }
  ],
  "campaigns": [
@@ -286,12 +286,12 @@
    "status": "PAUSED",
    "objective": "OUTCOME_ENGAGEMENT",
    "daily_budget": null,
-   "spend": 2398.08,
-   "impressions": 100000,
-   "clicks": 1816,
-   "lead": 2,
-   "form": 64,
-   "results": 66
+   "spend": 1999.67,
+   "impressions": 81613,
+   "clicks": 1528,
+   "lead": 1,
+   "form": 57,
+   "results": 58
   },
   {
    "id": "120247677251920618",
@@ -299,12 +299,12 @@
    "status": "PAUSED",
    "objective": "OUTCOME_ENGAGEMENT",
    "daily_budget": null,
-   "spend": 451.27,
-   "impressions": 19228,
-   "clicks": 264,
+   "spend": 271.67,
+   "impressions": 10180,
+   "clicks": 166,
    "lead": 0,
-   "form": 2,
-   "results": 2
+   "form": 1,
+   "results": 1
   },
   {
    "id": "120247954412930618",
@@ -312,12 +312,12 @@
    "status": "PAUSED",
    "objective": "OUTCOME_ENGAGEMENT",
    "daily_budget": null,
-   "spend": 24.32,
-   "impressions": 3560,
-   "clicks": 40,
+   "spend": 2.29,
+   "impressions": 130,
+   "clicks": 3,
    "lead": 0,
-   "form": 2,
-   "results": 2
+   "form": 0,
+   "results": 0
   },
   {
    "id": "120248197748250618",
@@ -325,12 +325,12 @@
    "status": "PAUSED",
    "objective": "OUTCOME_ENGAGEMENT",
    "daily_budget": null,
-   "spend": 185.86,
-   "impressions": 7772,
-   "clicks": 201,
+   "spend": 171.32,
+   "impressions": 6485,
+   "clicks": 178,
    "lead": 0,
-   "form": 5,
-   "results": 5
+   "form": 3,
+   "results": 3
   },
   {
    "id": "120248597409480618",
@@ -338,12 +338,12 @@
    "status": "PAUSED",
    "objective": "OUTCOME_LEADS",
    "daily_budget": null,
-   "spend": 300.23,
-   "impressions": 14419,
-   "clicks": 195,
-   "lead": 8,
+   "spend": 177.09,
+   "impressions": 8070,
+   "clicks": 118,
+   "lead": 6,
    "form": 0,
-   "results": 8
+   "results": 6
   },
   {
    "id": "120248665094570618",
@@ -351,9 +351,9 @@
    "status": "ACTIVE",
    "objective": "OUTCOME_ENGAGEMENT",
    "daily_budget": null,
-   "spend": 500.07,
-   "impressions": 77891,
-   "clicks": 4137,
+   "spend": 506.62,
+   "impressions": 76030,
+   "clicks": 4006,
    "lead": 0,
    "form": 0,
    "results": 0
@@ -364,22 +364,9 @@
    "status": "PAUSED",
    "objective": "OUTCOME_ENGAGEMENT",
    "daily_budget": null,
-   "spend": 8.31,
-   "impressions": 1172,
-   "clicks": 17,
-   "lead": 0,
-   "form": 0,
-   "results": 0
-  },
-  {
-   "id": "120248725578730618",
-   "name": "211026 / LEAD V2 / KELAS FIZIKAL / ABO",
-   "status": "PAUSED",
-   "objective": "OUTCOME_LEADS",
-   "daily_budget": null,
-   "spend": 17.16,
-   "impressions": 1213,
-   "clicks": 12,
+   "spend": 1.2,
+   "impressions": 10,
+   "clicks": 0,
    "lead": 0,
    "form": 0,
    "results": 0
@@ -402,39 +389,39 @@
   {
    "name": "090326  kfty feb h19-4-b4 fizikal",
    "campaign": "090326 / TESTING 2 / WHATSFORM / TOFU / RM30",
-   "spend": 840.12,
-   "impressions": 40170,
-   "clicks": 873,
+   "spend": 769.9,
+   "impressions": 37626,
+   "clicks": 779,
    "lead": 1,
-   "form": 29,
-   "results": 30
+   "form": 26,
+   "results": 27
   },
   {
    "name": "070426  / FWR 9 / KFTY DS 1 SEPT FULL fizikal",
    "campaign": "090326 / TESTING 2 / WHATSFORM / TOFU / RM30",
-   "spend": 462.25,
-   "impressions": 18521,
-   "clicks": 277,
-   "lead": 1,
-   "form": 14,
-   "results": 15
+   "spend": 367.53,
+   "impressions": 14908,
+   "clicks": 238,
+   "lead": 0,
+   "form": 12,
+   "results": 12
   },
   {
    "name": "080426  / FWR 12 / SKB1 V1 fizikal",
    "campaign": "090326 / TESTING 2 / WHATSFORM / TOFU / RM30",
-   "spend": 122.62,
-   "impressions": 3640,
-   "clicks": 107,
+   "spend": 113.05,
+   "impressions": 3354,
+   "clicks": 91,
    "lead": 0,
-   "form": 5,
-   "results": 5
+   "form": 4,
+   "results": 4
   },
   {
    "name": "080426  / FWR 13 / FEB KFTY H12V3 fizikal",
    "campaign": "090326 / TESTING 2 / WHATSFORM / TOFU / RM30",
-   "spend": 58.13,
-   "impressions": 2462,
-   "clicks": 13,
+   "spend": 33.59,
+   "impressions": 358,
+   "clicks": 1,
    "lead": 0,
    "form": 0,
    "results": 0
@@ -442,9 +429,9 @@
   {
    "name": "210726  / WFM 36 / w1 h15 b1b jen new fizikal",
    "campaign": "090326 / TESTING 2 / WHATSFORM / TOFU / RM30",
-   "spend": 139.59,
-   "impressions": 6271,
-   "clicks": 76,
+   "spend": 130.03,
+   "impressions": 5420,
+   "clicks": 69,
    "lead": 0,
    "form": 1,
    "results": 1
@@ -462,8 +449,8 @@
   {
    "name": "120826 / SEKSYEN7 -  shahalam 3",
    "campaign": "120826 / SHAH ALAM / ABO / WHATSFORM",
-   "spend": 0.31,
-   "impressions": 35,
+   "spend": 0.24,
+   "impressions": 20,
    "clicks": 1,
    "lead": 0,
    "form": 0,
@@ -482,9 +469,9 @@
   {
    "name": "130826 / SEKSYEN7 -  shahalam 6",
    "campaign": "120826 / SHAH ALAM / ABO / WHATSFORM",
-   "spend": 21.4,
-   "impressions": 1756,
-   "clicks": 21,
+   "spend": 14.49,
+   "impressions": 723,
+   "clicks": 10,
    "lead": 0,
    "form": 0,
    "results": 0
@@ -493,17 +480,7 @@
    "name": "130826 / SEKSYEN7 -  shahalam 7",
    "campaign": "120826 / SHAH ALAM / ABO / WHATSFORM",
    "spend": 0.98,
-   "impressions": 44,
-   "clicks": 0,
-   "lead": 0,
-   "form": 0,
-   "results": 0
-  },
-  {
-   "name": "260826 (ONL) - sa link 6 s online",
-   "campaign": "260826 / ONLINE TESTING / WHATSFORM / ABO / CPR RM10",
-   "spend": 0.03,
-   "impressions": 2,
+   "impressions": 43,
    "clicks": 0,
    "lead": 0,
    "form": 0,
@@ -513,7 +490,7 @@
    "name": "260826 (ONL) -  ads kelas on9",
    "campaign": "260826 / ONLINE TESTING / WHATSFORM / ABO / CPR RM10",
    "spend": 0.01,
-   "impressions": 3,
+   "impressions": 2,
    "clicks": 0,
    "lead": 0,
    "form": 0,
@@ -522,19 +499,19 @@
   {
    "name": "260826 (ONL) -  PACKAGE- kelas online 3 ads",
    "campaign": "260826 / ONLINE TESTING / WHATSFORM / ABO / CPR RM10",
-   "spend": 24.28,
-   "impressions": 3555,
-   "clicks": 40,
+   "spend": 2.28,
+   "impressions": 128,
+   "clicks": 3,
    "lead": 0,
-   "form": 2,
-   "results": 2
+   "form": 0,
+   "results": 0
   },
   {
    "name": "140926 / (WMO) EP - TESTIMONI - feedback compile baru - 1892492961816041",
    "campaign": "140926 / RETARGETING NEW / WHATSFORM",
-   "spend": 34.89,
-   "impressions": 918,
-   "clicks": 25,
+   "spend": 25.5,
+   "impressions": 394,
+   "clicks": 12,
    "lead": 0,
    "form": 0,
    "results": 0
@@ -572,9 +549,9 @@
   {
    "name": "230926 / SSV / vid 1 - KFTY DS 3 SEPT FULL shah alam",
    "campaign": "120826 / SHAH ALAM / ABO / WHATSFORM",
-   "spend": 27.42,
-   "impressions": 2137,
-   "clicks": 29,
+   "spend": 17.32,
+   "impressions": 876,
+   "clicks": 13,
    "lead": 0,
    "form": 0,
    "results": 0
@@ -582,8 +559,8 @@
   {
    "name": "230926 / SEKSYEN7 -  shah alam 8",
    "campaign": "120826 / SHAH ALAM / ABO / WHATSFORM",
-   "spend": 1.9,
-   "impressions": 73,
+   "spend": 0.98,
+   "impressions": 22,
    "clicks": 1,
    "lead": 0,
    "form": 0,
@@ -602,9 +579,9 @@
   {
    "name": "230926 / SSV / vid 2  - VH7 SEPT WAFI shah alam",
    "campaign": "120826 / SHAH ALAM / ABO / WHATSFORM",
-   "spend": 75.05,
-   "impressions": 4560,
-   "clicks": 78,
+   "spend": 59.01,
+   "impressions": 2770,
+   "clicks": 57,
    "lead": 0,
    "form": 1,
    "results": 1
@@ -612,8 +589,8 @@
   {
    "name": "230926 / SSV / vid 3 -  KFTY DS 5 SEPT FULL shah alam",
    "campaign": "120826 / SHAH ALAM / ABO / WHATSFORM",
-   "spend": 96.94,
-   "impressions": 2224,
+   "spend": 51.55,
+   "impressions": 1367,
    "clicks": 21,
    "lead": 0,
    "form": 0,
@@ -622,19 +599,19 @@
   {
    "name": "240926 / (POS) EP V5 - 1865963241135680",
    "campaign": "140926 / RETARGETING NEW / WHATSFORM",
-   "spend": 66.31,
-   "impressions": 4348,
-   "clicks": 96,
+   "spend": 63.14,
+   "impressions": 3830,
+   "clicks": 90,
    "lead": 0,
-   "form": 5,
-   "results": 5
+   "form": 3,
+   "results": 3
   },
   {
    "name": "240926 / (POS) EP V3 - 1865963184469019",
    "campaign": "140926 / RETARGETING NEW / WHATSFORM",
-   "spend": 3.0,
-   "impressions": 278,
-   "clicks": 6,
+   "spend": 1.03,
+   "impressions": 34,
+   "clicks": 2,
    "lead": 0,
    "form": 0,
    "results": 0
@@ -642,8 +619,8 @@
   {
    "name": "240926 / (POS) EP V2 - 1865963197802351",
    "campaign": "140926 / RETARGETING NEW / WHATSFORM",
-   "spend": 3.45,
-   "impressions": 33,
+   "spend": 3.44,
+   "impressions": 32,
    "clicks": 0,
    "lead": 0,
    "form": 0,
@@ -662,9 +639,9 @@
   {
    "name": "121026  / WFM 36 ep / w1 h15 b1b jen new fizikal",
    "campaign": "090326 / TESTING 2 / WHATSFORM / TOFU / RM30",
-   "spend": 37.88,
-   "impressions": 1291,
-   "clicks": 14,
+   "spend": 11.89,
+   "impressions": 176,
+   "clicks": 2,
    "lead": 0,
    "form": 0,
    "results": 0
@@ -672,9 +649,9 @@
   {
    "name": "131026 / VID PCS 2026 / PCS 1 (2026)",
    "campaign": "131026 / PCS26 / LEAD  / ABO",
-   "spend": 27.13,
-   "impressions": 940,
-   "clicks": 8,
+   "spend": 11.01,
+   "impressions": 299,
+   "clicks": 4,
    "lead": 0,
    "form": 0,
    "results": 0
@@ -682,9 +659,9 @@
   {
    "name": "131026  / WFM 84 / H18-2-B2 latest fizikal",
    "campaign": "090326 / TESTING 2 / WHATSFORM / TOFU / RM30",
-   "spend": 137.72,
-   "impressions": 4192,
-   "clicks": 85,
+   "spend": 125.06,
+   "impressions": 3537,
+   "clicks": 73,
    "lead": 0,
    "form": 3,
    "results": 3
@@ -692,9 +669,9 @@
   {
    "name": "131026  / WFM 86 / H15-2-Body 2 Latest fizi",
    "campaign": "090326 / TESTING 2 / WHATSFORM / TOFU / RM30",
-   "spend": 20.06,
-   "impressions": 535,
-   "clicks": 11,
+   "spend": 6.96,
+   "impressions": 198,
+   "clicks": 1,
    "lead": 0,
    "form": 0,
    "results": 0
@@ -702,19 +679,19 @@
   {
    "name": "131026  / WFM 87 / W3 H8+B1-SYIKIN fizikal",
    "campaign": "090326 / TESTING 2 / WHATSFORM / TOFU / RM30",
-   "spend": 143.66,
-   "impressions": 7359,
-   "clicks": 129,
+   "spend": 131.2,
+   "impressions": 5843,
+   "clicks": 111,
    "lead": 0,
-   "form": 7,
-   "results": 7
+   "form": 6,
+   "results": 6
   },
   {
    "name": "131026 / SSV / KFTY DS 7 SPET FULL shah alam",
    "campaign": "120826 / SHAH ALAM / ABO / WHATSFORM",
-   "spend": 39.26,
-   "impressions": 2269,
-   "clicks": 20,
+   "spend": 27.11,
+   "impressions": 1104,
+   "clicks": 13,
    "lead": 0,
    "form": 0,
    "results": 0
@@ -722,19 +699,19 @@
   {
    "name": "131026 / SSV / KFTY VH8 SEPT FULL shah alam",
    "campaign": "120826 / SHAH ALAM / ABO / WHATSFORM",
-   "spend": 38.64,
-   "impressions": 1347,
-   "clicks": 35,
+   "spend": 27.39,
+   "impressions": 882,
+   "clicks": 19,
    "lead": 0,
-   "form": 1,
-   "results": 1
+   "form": 0,
+   "results": 0
   },
   {
    "name": "131026 / SSV / BSP 2 General shah alam",
    "campaign": "120826 / SHAH ALAM / ABO / WHATSFORM",
-   "spend": 59.71,
-   "impressions": 3223,
-   "clicks": 48,
+   "spend": 39.74,
+   "impressions": 1782,
+   "clicks": 24,
    "lead": 0,
    "form": 0,
    "results": 0
@@ -742,9 +719,9 @@
   {
    "name": "131026 / POSTER PCS 2026 / poster-pcs-compact-structured-orange-v5",
    "campaign": "131026 / PCS26 / LEAD  / ABO",
-   "spend": 46.82,
-   "impressions": 3569,
-   "clicks": 91,
+   "spend": 40.5,
+   "impressions": 2581,
+   "clicks": 66,
    "lead": 4,
    "form": 0,
    "results": 4
@@ -772,8 +749,8 @@
   {
    "name": "131026 / POSTER PCS 2026 / poster-pcs-compact-structured-orange-navy-v5",
    "campaign": "131026 / PCS26 / LEAD  / ABO",
-   "spend": 0.1,
-   "impressions": 15,
+   "spend": 0.07,
+   "impressions": 12,
    "clicks": 1,
    "lead": 0,
    "form": 0,
@@ -792,9 +769,9 @@
   {
    "name": "131026 / VID PCS 2026 / PCS 2 (2026)",
    "campaign": "131026 / PCS26 / LEAD  / ABO",
-   "spend": 115.63,
-   "impressions": 4957,
-   "clicks": 44,
+   "spend": 107.9,
+   "impressions": 4765,
+   "clicks": 42,
    "lead": 1,
    "form": 0,
    "results": 1
@@ -802,9 +779,9 @@
   {
    "name": "131026 / VID PCS 2026 / PCS 3 (2026)",
    "campaign": "131026 / PCS26 / LEAD  / ABO",
-   "spend": 61.88,
-   "impressions": 2221,
-   "clicks": 28,
+   "spend": 14.44,
+   "impressions": 258,
+   "clicks": 3,
    "lead": 0,
    "form": 0,
    "results": 0
@@ -812,59 +789,19 @@
   {
    "name": "131026 / VID PCS 2026 / PCS 4 (2026)",
    "campaign": "131026 / PCS26 / LEAD  / ABO",
-   "spend": 4.68,
-   "impressions": 177,
+   "spend": 1.04,
+   "impressions": 52,
    "clicks": 0,
-   "lead": 2,
+   "lead": 0,
    "form": 0,
-   "results": 2
+   "results": 0
   },
   {
    "name": "131026 / VID PCS 2026 / PCS 5 (2026)",
    "campaign": "131026 / PCS26 / LEAD  / ABO",
-   "spend": 11.02,
-   "impressions": 182,
-   "clicks": 2,
-   "lead": 0,
-   "form": 0,
-   "results": 0
-  },
-  {
-   "name": "181026 / TESTI PCS / PCS 5 TESTIMONI NEW",
-   "campaign": "131026 / PCS26 / LEAD  / ABO",
-   "spend": 30.33,
-   "impressions": 2234,
-   "clicks": 19,
-   "lead": 0,
-   "form": 0,
-   "results": 0
-  },
-  {
-   "name": "181026 / TESTI PCS / PCS 4 TESTIMONI NEW",
-   "campaign": "131026 / PCS26 / LEAD  / ABO",
-   "spend": 1.69,
-   "impressions": 62,
+   "spend": 1.93,
+   "impressions": 74,
    "clicks": 1,
-   "lead": 0,
-   "form": 0,
-   "results": 0
-  },
-  {
-   "name": "181026 / TESTI PCS / PCS 3 TESTIMONI NEW",
-   "campaign": "131026 / PCS26 / LEAD  / ABO",
-   "spend": 0.16,
-   "impressions": 10,
-   "clicks": 0,
-   "lead": 0,
-   "form": 0,
-   "results": 0
-  },
-  {
-   "name": "181026 / TESTI PCS / PCS 2 TESTIMONI NEW",
-   "campaign": "131026 / PCS26 / LEAD  / ABO",
-   "spend": 0.46,
-   "impressions": 18,
-   "clicks": 0,
    "lead": 0,
    "form": 0,
    "results": 0
@@ -872,8 +809,8 @@
   {
    "name": "181026 / TESTI PCS / PCS 1 TESTIMONI NEW",
    "campaign": "131026 / PCS26 / LEAD  / ABO",
-   "spend": 0.13,
-   "impressions": 5,
+   "spend": 0.0,
+   "impressions": 0,
    "clicks": 0,
    "lead": 1,
    "form": 0,
@@ -882,8 +819,8 @@
   {
    "name": "INSTAGRAM - AIDA ANAK HAFAL -  18151760062530692",
    "campaign": "191026 / AWARENESS / BROAD / FB & IG",
-   "spend": 23.19,
-   "impressions": 3798,
+   "spend": 17.33,
+   "impressions": 1267,
    "clicks": 1,
    "lead": 0,
    "form": 0,
@@ -892,8 +829,8 @@
   {
    "name": "INSTAGRAM - MASUK DARJAH 1 - 17962958361198165",
    "campaign": "191026 / AWARENESS / BROAD / FB & IG",
-   "spend": 22.45,
-   "impressions": 2593,
+   "spend": 22.13,
+   "impressions": 2325,
    "clicks": 0,
    "lead": 0,
    "form": 0,
@@ -902,9 +839,9 @@
   {
    "name": "INSTAGRAM -  AIDA CHECKLIST DARJAH 1 - 17872624293636851",
    "campaign": "191026 / AWARENESS / BROAD / FB & IG",
-   "spend": 113.86,
-   "impressions": 16548,
-   "clicks": 9,
+   "spend": 130.72,
+   "impressions": 19696,
+   "clicks": 12,
    "lead": 0,
    "form": 0,
    "results": 0
@@ -912,8 +849,8 @@
   {
    "name": "INSTAGRAM - AIDA REKA AYAT - 17987607477099613",
    "campaign": "191026 / AWARENESS / BROAD / FB & IG",
-   "spend": 42.43,
-   "impressions": 3714,
+   "spend": 41.01,
+   "impressions": 2884,
    "clicks": 2,
    "lead": 0,
    "form": 0,
@@ -922,8 +859,8 @@
   {
    "name": "INSTAGRAM - AIDA PANIK ANAK - 18099379463384126",
    "campaign": "191026 / AWARENESS / BROAD / FB & IG",
-   "spend": 20.45,
-   "impressions": 1505,
+   "spend": 20.44,
+   "impressions": 1176,
    "clicks": 1,
    "lead": 0,
    "form": 0,
@@ -932,9 +869,9 @@
   {
    "name": "FACEBOOK - AIDA SILAP BUKU - 1980213363044000",
    "campaign": "191026 / AWARENESS / BROAD / FB & IG",
-   "spend": 5.81,
-   "impressions": 755,
-   "clicks": 86,
+   "spend": 6.47,
+   "impressions": 862,
+   "clicks": 93,
    "lead": 0,
    "form": 0,
    "results": 0
@@ -942,9 +879,9 @@
   {
    "name": "FACEBOOK - AIDA CHECKLIST DARJAH 1 - 1962542961477707",
    "campaign": "191026 / AWARENESS / BROAD / FB & IG",
-   "spend": 120.64,
-   "impressions": 20821,
-   "clicks": 1804,
+   "spend": 137.08,
+   "impressions": 23624,
+   "clicks": 1996,
    "lead": 0,
    "form": 0,
    "results": 0
@@ -952,9 +889,9 @@
   {
    "name": "FACEBOOK - DARJAH 1 TAK LANCAR - 1974794110252592",
    "campaign": "191026 / AWARENESS / BROAD / FB & IG",
-   "spend": 6.76,
-   "impressions": 867,
-   "clicks": 78,
+   "spend": 6.5,
+   "impressions": 835,
+   "clicks": 75,
    "lead": 0,
    "form": 0,
    "results": 0
@@ -962,9 +899,9 @@
   {
    "name": "FACEBOOK - AIDA ANAK HAFAL - 1976955223369814",
    "campaign": "191026 / AWARENESS / BROAD / FB & IG",
-   "spend": 2.83,
-   "impressions": 293,
-   "clicks": 41,
+   "spend": 2.54,
+   "impressions": 272,
+   "clicks": 38,
    "lead": 0,
    "form": 0,
    "results": 0
@@ -972,9 +909,9 @@
   {
    "name": "FACEBOOK - AIDA ANAK REKA AYAT - 1957432168655453",
    "campaign": "191026 / AWARENESS / BROAD / FB & IG",
-   "spend": 141.65,
-   "impressions": 26997,
-   "clicks": 2115,
+   "spend": 122.4,
+   "impressions": 23089,
+   "clicks": 1788,
    "lead": 0,
    "form": 0,
    "results": 0
@@ -982,9 +919,9 @@
   {
    "name": "191026 / WFM91 / AOS-ads 11 fizikal repost",
    "campaign": "090326 / TESTING 2 / WHATSFORM / TOFU / RM30",
-   "spend": 21.14,
-   "impressions": 661,
-   "clicks": 9,
+   "spend": 11.07,
+   "impressions": 81,
+   "clicks": 0,
    "lead": 0,
    "form": 0,
    "results": 0
@@ -992,9 +929,9 @@
   {
    "name": "191026 / POSTER PUTRAJAYA  / poster-kelas-petang-putrajaya-presint-15-v3 ep",
    "campaign": "191026 / ENGAGEMENT / KELAS PETANG new / ABO",
-   "spend": 8.02,
-   "impressions": 1165,
-   "clicks": 17,
+   "spend": 1.03,
+   "impressions": 8,
+   "clicks": 0,
    "lead": 0,
    "form": 0,
    "results": 0
@@ -1012,8 +949,8 @@
   {
    "name": "191026 / POSTER PUTRAJAYA  /  poster-kelas-petang-putrajaya-presint-15-v5 ep",
    "campaign": "191026 / ENGAGEMENT / KELAS PETANG new / ABO",
-   "spend": 0.29,
-   "impressions": 6,
+   "spend": 0.17,
+   "impressions": 1,
    "clicks": 0,
    "lead": 0,
    "form": 0,
@@ -1022,9 +959,9 @@
   {
    "name": "201026  / WFM 95 / KFTY DS 3 SEPT FULL",
    "campaign": "090326 / TESTING 2 / WHATSFORM / TOFU / RM30",
-   "spend": 25.04,
-   "impressions": 792,
-   "clicks": 10,
+   "spend": 13.52,
+   "impressions": 116,
+   "clicks": 1,
    "lead": 0,
    "form": 0,
    "results": 0
@@ -1032,19 +969,9 @@
   {
    "name": "201026  / FWR 7  ep /  KFTY VH1 SEPT FULL fizikal",
    "campaign": "090326 / TESTING 2 / WHATSFORM / TOFU / RM30",
-   "spend": 34.73,
-   "impressions": 836,
-   "clicks": 7,
-   "lead": 0,
-   "form": 0,
-   "results": 0
-  },
-  {
-   "name": "211026 / LEAD / WFL4 / SA- Marketing core 3 ads fizikal",
-   "campaign": "211026 / LEAD V2 / KELAS FIZIKAL / ABO",
-   "spend": 17.16,
-   "impressions": 1213,
-   "clicks": 12,
+   "spend": 15.44,
+   "impressions": 145,
+   "clicks": 0,
    "lead": 0,
    "form": 0,
    "results": 0
@@ -1052,9 +979,9 @@
   {
    "name": "221026 / FMO1 / 07 KFTY H6-B3-C1",
    "campaign": "090326 / TESTING 2 / WHATSFORM / TOFU / RM30",
-   "spend": 122.72,
-   "impressions": 5342,
-   "clicks": 98,
+   "spend": 110.15,
+   "impressions": 4200,
+   "clicks": 80,
    "lead": 0,
    "form": 1,
    "results": 1
@@ -1062,9 +989,9 @@
   {
    "name": "221026 / WFM99 / 02 KFTY H1-B1-C3",
    "campaign": "090326 / TESTING 2 / WHATSFORM / TOFU / RM30",
-   "spend": 134.57,
-   "impressions": 5154,
-   "clicks": 80,
+   "spend": 116.99,
+   "impressions": 4104,
+   "clicks": 62,
    "lead": 0,
    "form": 4,
    "results": 4
@@ -1072,49 +999,9 @@
   {
    "name": "051126 / SSV EP / vid 4 - SKB1 V1 shah alam",
    "campaign": "120826 / SHAH ALAM / ABO / WHATSFORM",
-   "spend": 7.77,
-   "impressions": 208,
+   "spend": 0.81,
+   "impressions": 18,
    "clicks": 0,
-   "lead": 0,
-   "form": 0,
-   "results": 0
-  },
-  {
-   "name": "021126 / WFM93 / FEB KFTY H11V1-1 fizikal repost",
-   "campaign": "090326 / TESTING 2 / WHATSFORM / TOFU / RM30",
-   "spend": 13.52,
-   "impressions": 258,
-   "clicks": 4,
-   "lead": 0,
-   "form": 0,
-   "results": 0
-  },
-  {
-   "name": "041126  / FMO 6 / 01 KFTY H12-B3-C1",
-   "campaign": "090326 / TESTING 2 / WHATSFORM / TOFU / RM30",
-   "spend": 13.62,
-   "impressions": 299,
-   "clicks": 0,
-   "lead": 0,
-   "form": 0,
-   "results": 0
-  },
-  {
-   "name": "041126  / FMO 7 / 04 KFTY H13-B4-C2.",
-   "campaign": "090326 / TESTING 2 / WHATSFORM / TOFU / RM30",
-   "spend": 13.57,
-   "impressions": 298,
-   "clicks": 1,
-   "lead": 0,
-   "form": 0,
-   "results": 0
-  },
-  {
-   "name": "041126  / FMO 8 / 06 KFTY H14-B2-C3",
-   "campaign": "090326 / TESTING 2 / WHATSFORM / TOFU / RM30",
-   "spend": 13.85,
-   "impressions": 372,
-   "clicks": 2,
    "lead": 0,
    "form": 0,
    "results": 0
@@ -1122,9 +1009,9 @@
   {
    "name": "051126 / SSV / ep /  ANGLE ADS 2 shah alam",
    "campaign": "120826 / SHAH ALAM / ABO / WHATSFORM",
-   "spend": 38.09,
-   "impressions": 609,
-   "clicks": 4,
+   "spend": 11.92,
+   "impressions": 217,
+   "clicks": 2,
    "lead": 0,
    "form": 0,
    "results": 0
@@ -1132,9 +1019,9 @@
   {
    "name": "051126 / SSV / ep /  ANGLE ADS 3 shah alam",
    "campaign": "120826 / SHAH ALAM / ABO / WHATSFORM",
-   "spend": 37.77,
-   "impressions": 540,
-   "clicks": 2,
+   "spend": 14.1,
+   "impressions": 153,
+   "clicks": 1,
    "lead": 0,
    "form": 0,
    "results": 0
