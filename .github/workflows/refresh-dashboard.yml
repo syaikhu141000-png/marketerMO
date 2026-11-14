@@ -1,9 +1,9 @@
 name: Tarik data MO2 (harian)
 # Enjin percuma: tarik data Meta setiap pagi dan simpan ke Cloudflare KV. Dashboard: https://mo2-dashboard.syaikhu141000.workers.dev/
+# Jadual harian sekarang dijalankan oleh Claude (scheduled task 5:08 pagi MYT, guna token yang disimpan dalam environment Claude).
+# Workflow ni simpanan sahaja: boleh dijalankan manual (Run workflow) kalau GitHub Secrets META_ACCESS_TOKEN & CLOUDFLARE_API_TOKEN diisi.
 on:
-  schedule:
-    - cron: "7 21 * * *"   # 5:07 pagi waktu Malaysia (GitHub kadang lewat 5-30 minit)
-  workflow_dispatch:        # butang "Run workflow" untuk tarik sekarang
+  workflow_dispatch:
 permissions:
   contents: write
 concurrency: mo2-refresh
