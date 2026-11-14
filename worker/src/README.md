@@ -23,17 +23,20 @@ kalau nak, sambung dari sistem sales (Google Sheet / CRM) pada fasa seterusnya.
 ## 3. Seni bina
 
 ```
-                 cron 5:30 pagi MYT (21:30 UTC)
-Meta Marketing API  ───────────────►  Cloudflare Worker  ──►  Cloudflare KV
- (graph.facebook.com)                  (src/build.js)          "data"       = data dashboard terkini
+                 GitHub Actions cron 5:07 pagi MYT (21:07 UTC)
+Meta Marketing API  ───────────────►  worker/run_build.mjs  ──►  Cloudflare KV (melalui Cloudflare API)
+ (graph.facebook.com)                  (guna src/build.js)        "data"       = data dashboard terkini
                                                                "history:YYYY-MM-DD" = snapshot harian (~13 bulan)
                                                                "notes"      = semua notes
                                                                "last_run"   = status run terakhir
 Pelayar / staff portal  ◄── GET / , /api/data , /api/notes ── Cloudflare Worker (src/index.js)
 ```
 
-- **Hosting:** satu Cloudflare Worker (`mo2-dashboard`), tiada server lain.
-- **Jadual:** Cron Trigger `30 21 * * *` (UTC) = 5:30 pagi waktu Malaysia. Tarik data **semalam** (hari penuh terakhir).
+- **Hosting dashboard:** satu Cloudflare Worker (`mo2-dashboard`, pelan percuma). Worker cuma papar dashboard, simpan notes dan sajikan API.
+- **Enjin data:** GitHub Actions (`.github/workflows/refresh-dashboard.yml`, percuma untuk repo public) jalankan `worker/run_build.mjs`
+  setiap hari `7 21 * * *` (UTC) = 5:07 pagi waktu Malaysia (GitHub kadang lewat 5-30 minit). Tarik data **semalam**.
+  Kerja berat dibuat di GitHub supaya Worker tak kena had CPU 10ms pelan percuma Cloudflare.
+- **Tarik sekarang:** GitHub → Actions → "Tarik data MO2 (harian)" → Run workflow.
 - **Storan:** Cloudflare KV (binding `KV`).
 - **Kod sumber:** repo `marketerMO`, folder `worker/`. Logik yang sama dalam Python: `scripts/build_dashboard_data.py`.
 
@@ -100,21 +103,22 @@ Window: `yesterday` = semalam, `3D/7D/14D/30D` = N hari berakhir semalam, `this_
 
 | Nama | Jenis | Nilai |
 |---|---|---|
-| `META_ACCESS_TOKEN` | Secret | Token System User Meta (permission `ads_read`, `business_management`) |
-| `REFRESH_KEY` | Secret | Kunci rawak untuk `/api/refresh` |
+| `META_ACCESS_TOKEN` | GitHub Secret | Token System User Meta (permission `ads_read`, `business_management`) |
+| `CLOUDFLARE_API_TOKEN` | GitHub Secret | Token Cloudflare (Workers KV Storage: Edit) untuk tulis data ke KV |
+| `REFRESH_KEY` | Cloudflare Secret | Kunci rawak untuk `/api/refresh` |
 | `META_AD_ACCOUNT_ID` | Var | `act_863467445706037` |
 | `META_API_VERSION` | Var | `v23.0` (kemas kini bila Meta keluarkan versi baru) |
 | `KV` | KV binding | namespace `mo2-dashboard` |
 
-Token **tidak pernah** disimpan dalam kod atau repo. Tukar di Cloudflare: Workers & Pages → mo2-dashboard →
-Settings → Variables and Secrets.
+Token **tidak pernah** disimpan dalam kod atau repo. Token Meta & Cloudflare untuk enjin harian disimpan dalam
+GitHub → Settings → Secrets and variables → Actions. `CF_ACCOUNT_ID` dan `CF_KV_NAMESPACE_ID` ada dalam fail workflow.
 
 ## 8. Sambung ke staff portal
 
 Pilihan paling mudah:
 1. **Embed:** `<iframe src="https://mo2-dashboard.<subdomain>.workers.dev/" style="width:100%;height:100vh;border:0"></iframe>`
 2. **Guna data sendiri:** `fetch("https://mo2-dashboard.<subdomain>.workers.dev/api/data")` (CORS dibuka), lukis UI portal sendiri.
-3. **Pindah ke akaun Cloudflare syarikat:** deploy folder `worker/` (lihat `worker/wrangler.toml`) dan isi semula secrets.
+3. **Pindah ke akaun Cloudflare syarikat:** deploy folder `worker/` (lihat `worker/wrangler.toml` / `worker/deploy.py`), kemas kini ID akaun & KV dalam workflow, isi semula secrets.
 
 ## 9. Tambah akaun lain (MO4, MO05)
 

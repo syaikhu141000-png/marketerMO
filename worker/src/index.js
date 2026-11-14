@@ -6,9 +6,9 @@
 //  GET  /api/status      -> status run terakhir (bila, berjaya/gagal, berapa panggilan API)
 //  GET  /api/notes       -> semua notes/remark { key: [ {ts, text}, ... ] }
 //  POST /api/notes       -> tambah satu note  body: {"key":"campaign:NAMA","text":"..."}
-//  POST /api/refresh     -> tarik data Meta sekarang (header X-Refresh-Key wajib)
+//  POST /api/refresh     -> tarik data dlm Worker (header X-Refresh-Key wajib; mungkin kena had CPU pelan percuma)
 //  GET  /docs            -> dokumentasi untuk IT / AI (Markdown)
-//  cron "30 21 * * *"    -> 5:30 pagi waktu Malaysia setiap hari, tarik data semalam
+//  Enjin harian: GitHub Actions (worker/run_build.mjs) tarik data 5:07 pagi MYT & tulis ke KV ini.
 //
 // Binding: KV (namespace), META_AD_ACCOUNT_ID, META_API_VERSION (var), META_ACCESS_TOKEN & REFRESH_KEY (secret)
 

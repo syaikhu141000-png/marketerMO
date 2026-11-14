@@ -3,7 +3,7 @@
 Guna:
   CLOUDFLARE_API_TOKEN=<token> python3 worker/deploy.py [--seed fail.json]
 Dalam sesi Claude, token disuntik oleh proxy (nilai env "proxy-injected").
-Langkah: KV namespace -> upload script (modul) -> workers.dev -> cron -> secret REFRESH_KEY (sekali) -> seed data (pilihan).
+Langkah: KV namespace -> upload script (modul) -> workers.dev -> (tiada cron) -> secret REFRESH_KEY (sekali) -> seed data (pilihan).
 """
 import json
 import os
@@ -16,7 +16,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 NAME = "mo2-dashboard"
-CRON = "30 21 * * *"  # 5:30 pagi MYT
+CRON = None  # tiada cron di Worker: enjin harian jalan di GitHub Actions (percuma, tiada had CPU 10ms)
 VARS = {"META_AD_ACCOUNT_ID": "act_863467445706037", "META_API_VERSION": "v23.0"}
 API = "https://api.cloudflare.com/client/v4"
 TOKEN = os.environ.get("CLOUDFLARE_API_TOKEN", "proxy-injected")
@@ -78,7 +78,7 @@ print("Script dimuat naik")
 
 # 3) workers.dev + 4) cron
 call("POST", f"/accounts/{acct}/workers/scripts/{NAME}/subdomain", {"enabled": True, "previews_enabled": False})
-call("PUT", f"/accounts/{acct}/workers/scripts/{NAME}/schedules", [{"cron": CRON}])
+call("PUT", f"/accounts/{acct}/workers/scripts/{NAME}/schedules", [{"cron": CRON}] if CRON else [])
 sub = call("GET", f"/accounts/{acct}/workers/subdomain")["subdomain"]
 print("Cron:", CRON, "| URL:", f"https://{NAME}.{sub}.workers.dev/")
 

@@ -9,8 +9,7 @@ rules = [
   { type = "Text", globs = ["**/*.html", "**/*.md"], fallthrough = true }
 ]
 
-[triggers]
-crons = ["30 21 * * *"]   # 5:30 pagi waktu Malaysia
+# Tiada cron di sini: enjin harian jalan di GitHub Actions (.github/workflows/refresh-dashboard.yml)
 
 [vars]
 META_AD_ACCOUNT_ID = "act_863467445706037"
