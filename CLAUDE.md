@@ -8,3 +8,4 @@
 - Jangan nilai iklan ikut CPL sahaja; bandingkan dengan booking/enrollment bila data ada.
 - Untuk buat iklan existing post (Project 1), ikut SOP_PROJECT_1.md sebiji; tanya owner tarikh, keyword, post ID & nama video setiap kali.
 - HAD BAJET HARIAN (keputusan consultant, 15 Nov 2026): jumlah RM300/hari semua iklan = PCS RM120 + partner RM90 + iklan owner (Project 1) RM90. Jangan cipta / naikkan bajet yang buat jumlah melebihi had ni tanpa approval owner. Setiap cadangan iklan baru mesti nyatakan dari peruntukan mana bajet diambil.
+- Sebelum ubah apa-apa di Meta (bajet, status, pause), tunjuk ringkasan perubahan dan TUNGGU owner kata "buat/ya" untuk ringkasan tu. Arahan umum (cth "adjust ikut budget") = minta cadangan, bukan kebenaran ubah. Nota: ubah bajet melalui connector Meta Ads boleh auto-PAUSE ad set yang aktif.
