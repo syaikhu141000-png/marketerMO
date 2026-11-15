@@ -36,6 +36,7 @@
 | **Device** | **Mobile + Desktop (semua device)** |
 | Brand safety | Relaxed *(ikut TESTING 2)* |
 | Include audience | **Tiada — Broad** |
+| **Checkbox / pilihan lain** | **Ikut ad set sedia ada.** Jangan tick apa-apa pilihan yang owner biasanya tak tick (tiada tambahan sendiri). |
 
 ### Lokasi — 16 cawangan (jenis: orang yang tinggal / kerap / baru berada di kawasan)
 | # | Cawangan | Lokasi dalam Meta | Radius |
@@ -76,8 +77,31 @@
 **Jangan guna:** MO whasform view 180D & ONPAY VISITORS (pixel audience ~20, rosak), 3 Lookalike (tak sedia),
 RETARGETING [cawangan] (untuk campaign retargeting), FB/IG Page 30/60/90D (bertindih), audience < 1,000.
 
-## 3. Ad
-*(Belum — owner akan ajar.)*
+## 3. Ad (khas existing post)
+**Syarat wajib selepas duplicate ad set:**
+- **Padam semua ad lama** yang ikut terbawa dalam ad set yang di-duplicate.
+- Pastikan **tiada video lama** dan **tiada video yang tak berkaitan** dengan kursus tu dalam ad set.
+- Ad set akhir hanya mengandungi ad existing post yang baru.
+
+| Setting | Nilai |
+|---|---|
+| Nama ad | `DDMMYY / KEYWORD / NAMA VIDEO - POST ID` *(ikut ad sedia ada, cth `121126 / FMO 8 ep / 06 KFTY H14-B2-C3 - 2007278590337477`)* |
+| Jenis | **Use existing post** (post ID FB, IG ikut sekali jika ada) |
+| Page | `106138047883616` |
+| CTA | Contact Us *(ikut ad sedia ada — belum disahkan owner)* |
+| Tracking | Pixel `907174708060871` on |
+| Advantage+ creative | **Semua OFF**, kecuali **Standard enhancements = ON** dan **Text optimizations = ON** |
+| Multi-advertiser ads | **OFF** |
+| Status | **PAUSED** — owner semak & aktifkan |
+
+## 4. Aliran penuh: buat iklan existing post
+1. Campaign Project 1 (`161126 / FIZIKAL / WHATSFORM / ABO`) — cipta sekali sahaja.
+2. **Duplicate ad set templat** dalam campaign yang sama (bukan campaign baru).
+3. Tukar nama ad set: `DDMMYY / KEYWORD / WHATSFORM / ABO / 30-50 / BROAD / WOMEN / RM30 - NAMA VIDEO - POST ID`.
+4. Semak setting ad set sama dengan templat (16 lokasi, 11 exclude, RM30, perempuan 30–50 Broad, Advantage+ placements, semua device, WhatsFormSubmit). Tiada tick tambahan.
+5. **Padam ad lama** dalam ad set tu; pastikan tiada video lama / tak berkaitan.
+6. Cipta ad existing post baru (setting seksyen 3).
+7. Semua **PAUSED**. Tunjuk ringkasan kepada owner. Owner semak di Ads Manager, kemudian aktifkan.
 
 ## Perkara terbuka
 - Objective Engagement vs Leads — sebab pilihan belum diterangkan.
