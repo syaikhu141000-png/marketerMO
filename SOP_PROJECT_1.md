@@ -119,6 +119,15 @@ Claude mesti **minta semua ni setiap kali** sebelum mula, supaya owner tak terle
 6. Cipta ad existing post baru (setting seksyen 3).
 7. Semua **PAUSED**. Tunjuk ringkasan kepada owner. Owner semak di Ads Manager, kemudian aktifkan.
 
+## Nota teknikal API (dari pembinaan pertama 16 Nov 2026)
+- Ad set wajib ada pengesahan pengiklan Malaysia: `regional_regulated_categories` = MALAYSIA_UNIVERSAL + VOLUNTARY_VERIFICATION,
+  `regional_regulation_identities` beneficiary & payer = `1737602371705472`.
+- Campaign ABO perlu `is_adset_budget_sharing_enabled=false`.
+- "Standard enhancements" (bundle) dah deprecated di API -> aktifkan komponen individu: **enhance_cta, inline_comment (relevant comments), text_optimizations**; lain OPT_OUT.
+- Existing post: guna `object_story_id` + `instagram_user_id` sahaja (tak boleh campur dgn `source_instagram_media_id`). Iklan IG jadi versi baru dari post FB (like/komen post IG asal tak ikut).
+- Status: campaign PAUSED (owner aktifkan), ad set & ad ACTIVE dengan `start_time` jadual -> bila owner aktifkan campaign, ia mula ikut jadual.
+- Skrip rujukan: `projects/project1_161126.py`.
+
 ## Nota keyword
 - Ad `120239436500140618` (kfty feb h19-4-b4, ad set `🟢090326 / TESTING 2 / ...`) guna keyword **DIRECT FORM** (disahkan owner).
 - **Jangan edit ad set / ad lama** (cth nama RM30 tapi bajet RM200) — biarkan seperti asal.
