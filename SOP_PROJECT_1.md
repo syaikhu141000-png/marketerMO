@@ -1,5 +1,13 @@
 # SOP Project 1 — Iklan Fizikal WhatsForm (Minda Optima 2)
 
+Project 1 terdiri daripada **3 projek**, ikut peringkat Ads Manager:
+
+| Projek | Peringkat | Isi |
+|---|---|---|
+| **1. Projek Kempen** | Campaign | Nama campaign, objective **Engagement**, **ABO** |
+| **2. Projek Fizikal General WhatsForm** | Ad set | Lokasi 16 cawangan, exclude, umur/jantina, bajet, placement |
+| **3. Projek Existing** | Ad (creative) | Iklan guna existing post |
+
 > Status: **DRAF, sedang diajar oleh owner.** Claude TIDAK cipta / ubah / aktifkan apa-apa di Meta sehingga owner beri arahan jelas.
 > Akaun iklan: Minda Optima 2 (`act_863467445706037`). Pixel: `907174708060871`.
 
@@ -9,18 +17,18 @@
   **Jangan cipta campaign baru**, jangan duplicate campaign.
 - Semua yang dicipta mesti status **PAUSED** dulu (peraturan CLAUDE.md), owner semak di Ads Manager sebelum aktif.
 
-## 1. Campaign
+## 1. Projek Kempen (Campaign)
 | Setting | Nilai |
 |---|---|
 | Nama | `161126 / FIZIKAL / WHATSFORM / ABO` (format: `DDMMYY / JENIS KELAS / SUMBER LEAD / JENIS BAJET`) |
 | Buying type | Auction |
-| Objective | Engagement *(ikut campaign sedia ada TESTING 2 — belum disahkan owner)* |
+| Objective | **Engagement** (disahkan owner) |
 | Special Ad Categories | Tiada |
 | Setup | Manual (bukan Advantage+ campaign) |
 | Advantage campaign budget (CBO) | **Off — ABO** (bajet di ad set) |
 | Spending limit / A/B test / budget scheduling | Tiada / Off / Off |
 
-## 2. Ad set
+## 2. Projek Fizikal General WhatsForm (Ad set)
 | Setting | Nilai |
 |---|---|
 | Nama | `DDMMYY / KEYWORD / WHATSFORM / ABO / 30-50 / BROAD / WOMEN / RM30 - NAMA VIDEO - POST ID` — **disahkan owner**. KEYWORD = keyword WhatsForm (FWR/WFM/FMO + nombor). Untuk existing post, kod creative = **nama video + ID post di belakang** |
@@ -77,7 +85,7 @@
 **Jangan guna:** MO whasform view 180D & ONPAY VISITORS (pixel audience ~20, rosak), 3 Lookalike (tak sedia),
 RETARGETING [cawangan] (untuk campaign retargeting), FB/IG Page 30/60/90D (bertindih), audience < 1,000.
 
-## 3. Ad (khas existing post)
+## 3. Projek Existing (Ad — khas existing post)
 **Syarat wajib selepas duplicate ad set:**
 - **Padam semua ad lama** yang ikut terbawa dalam ad set yang di-duplicate.
 - Pastikan **tiada video lama** dan **tiada video yang tak berkaitan** dengan kursus tu dalam ad set.
@@ -112,7 +120,6 @@ Claude mesti **minta semua ni setiap kali** sebelum mula, supaya owner tak terle
 7. Semua **PAUSED**. Tunjuk ringkasan kepada owner. Owner semak di Ads Manager, kemudian aktifkan.
 
 ## Perkara terbuka
-- Objective Engagement vs Leads — sebab pilihan belum diterangkan.
 - Alamat sebenar cawangan Shah Alam (tiada di pantasbaca.com).
 - Audience pixel WhatsForm cuma ~20 orang — semak Events Manager.
 - Keyword WhatsForm bagi ad `120239436500140618` (kfty feb h19-4-b4) tiada dalam nama ad.
