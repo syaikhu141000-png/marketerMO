@@ -23,7 +23,7 @@
 ## 2. Ad set
 | Setting | Nilai |
 |---|---|
-| Nama | `DDMMYY / KEYWORD WHATSFORM / WHATSFORM / TOFU / 30-50 / BROAD / WOMEN / RM30 - KOD CREATIVE` *(ikut TESTING 2)* |
+| Nama | `DDMMYY / KEYWORD / WHATSFORM / ABO / 30-50 / BROAD / WOMEN / RM30 - NAMA VIDEO - POST ID` — **disahkan owner**. KEYWORD = keyword WhatsForm (FWR/WFM/FMO + nombor). Untuk existing post, kod creative = **nama video + ID post di belakang** |
 | Conversion location | Website |
 | Performance goal | Maximise conversions — pixel `907174708060871`, event custom **`WhatsFormSubmit`** |
 | Bid strategy | Highest volume (lowest cost, tiada cap) |
@@ -66,7 +66,7 @@
 5. `IGMO - [BOFU] SEND MESSAGE 365D` — 120212962805360618
 6. `FBMO - [BOFU] Click / CTA Button 365D` — 120212960698310618
 
-**Bersyarat (owner belum putuskan)** — exclude hanya jika ada campaign retargeting aktif:
+**Juga exclude (keputusan owner 15 Nov):**
 7. `VERSION 3 26 3 VV3S 260826` — 120247964873540618
 8. `NEW26- VV10S-200526-FBMO` — 120241529882410618
 9. `VERSION 2 26- VV10S-050726-FBMO` — 120246754652980618
@@ -81,7 +81,6 @@ RETARGETING [cawangan] (untuk campaign retargeting), FB/IG Page 30/60/90D (berti
 
 ## Perkara terbuka
 - Objective Engagement vs Leads — sebab pilihan belum diterangkan.
-- Exclude #7–11.
 - Alamat sebenar cawangan Shah Alam (tiada di pantasbaca.com).
 - Audience pixel WhatsForm cuma ~20 orang — semak Events Manager.
 - Keyword WhatsForm bagi ad `120239436500140618` (kfty feb h19-4-b4) tiada dalam nama ad.
