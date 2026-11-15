@@ -119,7 +119,10 @@ Claude mesti **minta semua ni setiap kali** sebelum mula, supaya owner tak terle
 6. Cipta ad existing post baru (setting seksyen 3).
 7. Semua **PAUSED**. Tunjuk ringkasan kepada owner. Owner semak di Ads Manager, kemudian aktifkan.
 
+## Nota keyword
+- Ad `120239436500140618` (kfty feb h19-4-b4, ad set `🟢090326 / TESTING 2 / ...`) guna keyword **DIRECT FORM** (disahkan owner).
+- **Jangan edit ad set / ad lama** (cth nama RM30 tapi bajet RM200) — biarkan seperti asal.
+
 ## Perkara terbuka
 - Alamat sebenar cawangan Shah Alam (tiada di pantasbaca.com).
 - Audience pixel WhatsForm cuma ~20 orang — semak Events Manager.
-- Keyword WhatsForm bagi ad `120239436500140618` (kfty feb h19-4-b4) tiada dalam nama ad.
