@@ -6,3 +6,4 @@
 - Sebelum buat perubahan, tunjuk ringkasan apa yang akan berubah.
 - Report dalam Bahasa Melayu, mata wang RM.
 - Jangan nilai iklan ikut CPL sahaja; bandingkan dengan booking/enrollment bila data ada.
+- Untuk buat iklan existing post (Project 1), ikut SOP_PROJECT_1.md sebiji; tanya owner tarikh, keyword, post ID & nama video setiap kali.

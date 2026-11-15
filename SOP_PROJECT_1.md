@@ -36,7 +36,7 @@
 | **Device** | **Mobile + Desktop (semua device)** |
 | Brand safety | Relaxed *(ikut TESTING 2)* |
 | Include audience | **Tiada — Broad** |
-| **Checkbox / pilihan lain** | **Ikut ad set sedia ada.** Jangan tick apa-apa pilihan yang owner biasanya tak tick (tiada tambahan sendiri). |
+| **Checkbox / pilihan lain** | **Samakan dengan ad set sedia ada. Jangan tick yang lain**, kecuali owner suruh (cth Advantage). Kalau tak pasti sama ada perlu tick, **tanya owner dulu** semasa buat iklan. |
 
 ### Lokasi — 16 cawangan (jenis: orang yang tinggal / kerap / baru berada di kawasan)
 | # | Cawangan | Lokasi dalam Meta | Radius |
@@ -88,13 +88,21 @@ RETARGETING [cawangan] (untuk campaign retargeting), FB/IG Page 30/60/90D (berti
 | Nama ad | `DDMMYY / KEYWORD / NAMA VIDEO - POST ID` *(ikut ad sedia ada, cth `121126 / FMO 8 ep / 06 KFTY H14-B2-C3 - 2007278590337477`)* |
 | Jenis | **Use existing post** (post ID FB, IG ikut sekali jika ada) |
 | Page | `106138047883616` |
-| CTA | Contact Us *(ikut ad sedia ada — belum disahkan owner)* |
+| CTA | **Contact Us** (disahkan owner) |
 | Tracking | Pixel `907174708060871` on |
 | Advantage+ creative | **Semua OFF**, kecuali **Standard enhancements = ON** dan **Text optimizations = ON** |
 | Multi-advertiser ads | **OFF** |
 | Status | **PAUSED** — owner semak & aktifkan |
 
-## 4. Aliran penuh: buat iklan existing post
+## 4. WAJIB tanya owner sebelum buat (jangan andaikan)
+Claude mesti **minta semua ni setiap kali** sebelum mula, supaya owner tak terlepas:
+1. **Tarikh** untuk nama (`DDMMYY`) = **hari iklan jalan**. Cth buat & jalan 16 hb -> `16xx26`. Owner akan beritahu; kalau tak disebut, **tanya**.
+2. **Keyword WhatsForm** — owner bagi. Untuk existing post, **ikut sebiji** keyword yang owner bagi (jangan reka / jangan ambil nombor sendiri).
+3. **Post ID / link post** (FB, dan IG kalau ada).
+4. **Nama video**.
+5. Ada apa-apa **Advantage / tick tambahan** kali ni? (default: tiada)
+
+## 5. Aliran penuh: buat iklan existing post
 1. Campaign Project 1 (`161126 / FIZIKAL / WHATSFORM / ABO`) — cipta sekali sahaja.
 2. **Duplicate ad set templat** dalam campaign yang sama (bukan campaign baru).
 3. Tukar nama ad set: `DDMMYY / KEYWORD / WHATSFORM / ABO / 30-50 / BROAD / WOMEN / RM30 - NAMA VIDEO - POST ID`.
