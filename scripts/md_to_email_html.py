@@ -3,13 +3,12 @@ import html
 import re
 import sys
 
-TABLE = 'style="border-collapse:collapse;font-size:12px;margin:6px 0 14px;width:100%"'
-TH = 'style="background:#1f2937;color:#fff;padding:5px 7px;border:1px solid #d1d5db;text-align:left;white-space:nowrap"'
-TD = 'style="padding:5px 7px;border:1px solid #d1d5db;vertical-align:top"'
+TABLE = 'border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;border-color:#d1d5db;font-size:12px"'
+TH = 'bgcolor="#1f2937" align="left" style="color:#fff"'
 
 
 def inline(s):
-    s = html.escape(s, quote=False).replace("&lt;br&gt;", "<br>").replace("&lt;sub&gt;", '<span style="color:#6b7280;font-size:11px">').replace("&lt;/sub&gt;", "</span>")
+    s = html.escape(s, quote=False).replace("&lt;br&gt;", "<br>").replace("&lt;sub&gt;", '<font color="#6b7280" size="1">').replace("&lt;/sub&gt;", "</font>")
     s = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", s)
     return re.sub(r"(?<!\w)_(.+?)_(?!\w)", r"<i>\1</i>", s)
 
@@ -22,8 +21,8 @@ def convert(md):
         head, body = rows[0], [r for r in rows[2:]]
         out.append(f"<table {TABLE}><tr>" + "".join(f"<th {TH}>{inline(c)}</th>" for c in head) + "</tr>")
         for i, r in enumerate(body):
-            bg = ' background:#f9fafb;' if i % 2 else ''
-            out.append("<tr>" + "".join(f"<td {TD.replace('vertical-align:top', 'vertical-align:top;' + bg)}>{inline(c)}</td>" for c in r) + "</tr>")
+            bg = ' bgcolor="#f3f4f6"' if i % 2 else ''
+            out.append(f"<tr{bg}>" + "".join(f"<td>{inline(c)}</td>" for c in r) + "</tr>")
         out.append("</table>"); rows.clear()
     for line in md.splitlines():
         if line.startswith("|"):
