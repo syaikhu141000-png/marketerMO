@@ -141,8 +141,8 @@ def main():
                "|---|---|---|---|---|---|"]
         for k in sorted(data, key=lambda k: (k[0], -data[k]["today"]["spend"], -data[k]["this_month"]["spend"])):
             w = data[k]
-            if w["today"]["spend"] <= 0 and w["yesterday"]["spend"] <= 0 and w["last_7d"]["spend"] <= 0:
-                continue
+            if w["today"]["spend"] <= 0 and w["yesterday"]["spend"] <= 0:
+                continue  # hanya yang jalan hari ini / semalam
             aw = aware(k[0]); t, y, s, m_ = w["today"], w["yesterday"], w["last_7d"], w["this_month"]
             out.append(f"| {light(t, aw)} | {key_fmt(k)} | {rm(t['spend'])} · {rm(met(t)[0])} · {res(t, aw)} · {'—' if aw else rm(met(t)[3])} | "
                        f"{rm(y['spend'])} · {res(y, aw)} · {'—' if aw else rm(met(y)[3])} | "
