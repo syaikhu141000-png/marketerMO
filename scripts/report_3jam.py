@@ -149,8 +149,21 @@ def main():
                        f"{rm(s['spend'])} · {res(s, aw)} · {'—' if aw else rm(met(s)[3])} | "
                        f"{res(m_, aw)} · {'—' if aw else rm(met(m_)[3])} |")
         return out
-    L += block("2. Ikut ad set", aset, lambda k: f"{k[1]}<br><sub>{k[0][:30]}</sub>")
-    L += block("3. Ikut ad", ad, lambda k: f"{k[2]}<br><sub>{k[1][:40]}</sub>")
+    def today_detail(title, data, key_fmt):
+        out = [f"\n## {title}", "| | Nama | Spend | Impr. | CPM | Klik | CTR | CPC | Lead | CPL |",
+               "|---|---|---|---|---|---|---|---|---|---|"]
+        for k in sorted(data, key=lambda k: (k[0], -data[k]["today"]["spend"])):
+            t = data[k]["today"]
+            if t["spend"] <= 0:
+                continue
+            aw = aware(k[0]); cpm, ctr, cpc, cpl = met(t)
+            out.append(f"| {light(t, aw)} | {key_fmt(k)} | {rm(t['spend'])} | {t['imp']:,} | {rm(cpm)} | {t['clk']:,} | {pc(ctr)} | "
+                       f"{rm(cpc)} | {res(t, aw)} | {'—' if aw else rm(cpl)} |")
+        return out
+    L += today_detail("2. Ad set — Hari ini (detail)", aset, lambda k: f"{k[1]}<br><sub>{k[0][:30]}</sub>")
+    L += block("3. Ad set — banding tempoh", aset, lambda k: f"{k[1]}<br><sub>{k[0][:30]}</sub>")
+    L += today_detail("4. Ad — Hari ini (detail)", ad, lambda k: f"{k[2]}<br><sub>{k[1][:40]}</sub>")
+    L += block("5. Ad — banding tempoh", ad, lambda k: f"{k[2]}<br><sub>{k[1][:40]}</sub>")
 
     # Amaran
     warn = []
