@@ -11,6 +11,9 @@ ROOT = Path(__file__).resolve().parent.parent
 
 def load_env(path=ROOT / ".env"):
     if not path.exists():
+        # Di GitHub Actions, token & ID datang dari env (GitHub Secrets), tiada .env
+        if os.environ.get("META_AD_ACCOUNT_ID"):
+            return
         raise SystemExit(f"Fail {path} tak jumpa.")
     for line in path.read_text().splitlines():
         line = line.strip()
