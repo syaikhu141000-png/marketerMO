@@ -24,7 +24,12 @@ def cfg(need_account=True):
     load_env()
     c = {k: os.environ.get(k, "") for k in
          ("META_ACCESS_TOKEN", "META_AD_ACCOUNT_ID", "META_PAGE_ID", "META_API_VERSION")}
-    # Token kosong / "proxy-injected" = proxy sesi cloud suntik header Authorization (token tak pernah ada dalam fail)
+    # "proxy-injected" HANYA placeholder — confirmed 2026-11-20: Claude Code/Cowork cloud
+    # session punya agent-proxy cuma buat TLS tunnel + domain allowlist (graph.facebook.com
+    # kena allowlist kat Claude Settings > Capabilities > Allowed websites), ia TAK auto-inject
+    # Authorization header. Dengan placeholder ni, Meta balas "(#200) Provide valid app ID".
+    # Token SEBENAR mesti ada dalam .env sebelum run (manual refresh, atau disuntik dari secret
+    # store luar sebelum script dipanggil). Lihat docs/TOKEN_NOTES.md untuk butiran penuh.
     if need_account and (not c["META_AD_ACCOUNT_ID"] or c["META_AD_ACCOUNT_ID"] == "act_"):
         raise SystemExit("Isi META_AD_ACCOUNT_ID dalam .env (jalankan scripts/test_connection.py untuk senarai akaun).")
     if c["META_AD_ACCOUNT_ID"] and not c["META_AD_ACCOUNT_ID"].startswith("act_"):
