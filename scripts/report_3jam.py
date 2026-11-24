@@ -65,6 +65,22 @@ def res(x, aw):
 def main():
     acc = cfg()["META_AD_ACCOUNT_ID"]
     now = datetime.now(timezone(timedelta(hours=8)))
+
+    lead_xlsx = sys.argv[sys.argv.index("--lead-xlsx") + 1] if "--lead-xlsx" in sys.argv else None
+    borang = None
+    if lead_xlsx:
+        from lead_monitor_report import period_keyword_counts, group_counts, group_of
+        kw_counts = period_keyword_counts(lead_xlsx, now.replace(tzinfo=None))
+        borang = group_counts(kw_counts)  # {window: {'FIZIKAL':n,'PCS':n,'TOTAL':n}}
+
+    def campaign_group(name):
+        # Padankan nama campaign dengan kumpulan keyword borang (FIZIKAL / PCS).
+        u = name.upper()
+        if "FIZIKAL" in u:
+            return "FIZIKAL"
+        if "PCS" in u:
+            return "PCS"
+        return None
     # data ikut tempoh (peringkat ad)
     D = {}
     for p, _ in PRESETS:
@@ -109,11 +125,13 @@ def main():
          "7 hari = 7 hari penuh sebelum hari ini. Bulan ini termasuk hari ini.\n"]
 
     # Ringkasan
+    lb_col = " Lead borang (gsheet) |" if borang else ""
     L += ["## Ringkasan (campaign lead-gen, tanpa Awareness)",
-          "| Tempoh | Spend | Lead | CPL | CPM | CTR |", "|---|---|---|---|---|---|"]
+          f"| Tempoh | Spend | Lead | CPL | CPM | CTR |{lb_col}", f"|---|---|---|---|---|---|{'---|' if borang else ''}"]
     for w, lab in WIN:
         t = total(w, True); cpm, ctr, _, cpl = met(t)
-        L.append(f"| {lab} | {rm(t['spend'])} | {t['lead']} | {rm(cpl)} | {rm(cpm)} | {pc(ctr)} |")
+        lb = f" {borang[w]['TOTAL']} |" if borang else ""
+        L.append(f"| {lab} | {rm(t['spend'])} | {t['lead']} | {rm(cpl)} | {rm(cpm)} | {pc(ctr)} |{lb}")
     td = total("today", False)
     L.append(f"\nSpend semua iklan hari ini (termasuk Awareness): **{rm(td['spend'])}**.\n")
 
@@ -123,14 +141,17 @@ def main():
         if camp[c]["today"]["spend"] <= 0 and camp[c]["yesterday"]["spend"] <= 0:
             continue  # campaign tak aktif (cth TESTING 2 lama)
         aw = aware(c)
+        grp = None if aw else campaign_group(c)
+        lb_col = " Lead borang (gsheet) |" if (borang and grp) else ""
         L += [f"\n**{light(camp[c]['today'], aw)} {c}**", "",
-              f"| Tempoh | Spend | Impr. | CPM | Klik | CTR | CPC | {'ThruPlay' if aw else 'Lead'} | {'—' if aw else 'CPL'} |",
-              "|---|---|---|---|---|---|---|---|---|"]
+              f"| Tempoh | Spend | Impr. | CPM | Klik | CTR | CPC | {'ThruPlay' if aw else 'Lead'} | {'—' if aw else 'CPL'} |{lb_col}",
+              f"|---|---|---|---|---|---|---|---|---|{'---|' if lb_col else ''}"]
         for w, lab in WIN:
             x = camp[c][w]; cpm, ctr, cpc, cpl = met(x)
             r_ = "— (tiada data per jam)" if aw and w in ("h3", "h3p") else res(x, aw)
+            lb = f" {borang[w][grp]} |" if (borang and grp) else ""
             L.append(f"| {lab} | {rm(x['spend'])} | {x['imp']:,} | {rm(cpm)} | {x['clk']:,} | {pc(ctr)} | {rm(cpc)} | "
-                     f"{r_} | {'—' if aw else rm(cpl)} |")
+                     f"{r_} | {'—' if aw else rm(cpl)} |{lb}")
 
     # 2. Ad set & 3. Ad
     def block(title, data, key_fmt):
@@ -147,18 +168,24 @@ def main():
                        f"{rm(s['spend'])} · {res(s, aw)} · {'—' if aw else rm(met(s)[3])} | "
                        f"{res(m_, aw)} · {'—' if aw else rm(met(m_)[3])} |")
         return out
-    def today_detail(title, data, key_fmt):
-        out = [f"\n## {title}", "| | Nama | Spend | Impr. | CPM | Klik | CTR | CPC | Lead | CPL |",
-               "|---|---|---|---|---|---|---|---|---|---|"]
+    def today_detail(title, data, key_fmt, match_borang=False):
+        lb_col = " Lead borang (gsheet) |" if (borang and match_borang) else ""
+        out = [f"\n## {title}", f"| | Nama | Spend | Impr. | CPM | Klik | CTR | CPC | Lead | CPL |{lb_col}",
+               f"|---|---|---|---|---|---|---|---|---|---|{'---|' if lb_col else ''}"]
         for k in sorted(data, key=lambda k: (k[0], -data[k]["today"]["spend"])):
             t = data[k]["today"]
             if t["spend"] <= 0:
                 continue
             aw = aware(k[0]); cpm, ctr, cpc, cpl = met(t)
+            lb = ""
+            if lb_col:
+                from lead_monitor_report import match_adset_keyword
+                n = match_adset_keyword(k[1], kw_counts["today"])
+                lb = f" {n if n is not None else '—'} |"
             out.append(f"| {light(t, aw)} | {key_fmt(k)} | {rm(t['spend'])} | {t['imp']:,} | {rm(cpm)} | {t['clk']:,} | {pc(ctr)} | "
-                       f"{rm(cpc)} | {res(t, aw)} | {'—' if aw else rm(cpl)} |")
+                       f"{rm(cpc)} | {res(t, aw)} | {'—' if aw else rm(cpl)} |{lb}")
         return out
-    L += today_detail("2. Ad set — Hari ini (detail)", aset, lambda k: f"{k[1]}<br><sub>{k[0][:30]}</sub>")
+    L += today_detail("2. Ad set — Hari ini (detail)", aset, lambda k: f"{k[1]}<br><sub>{k[0][:30]}</sub>", match_borang=True)
     L += block("3. Ad set — banding tempoh", aset, lambda k: f"{k[1]}<br><sub>{k[0][:30]}</sub>")
     L += today_detail("4. Ad — Hari ini (detail)", ad, lambda k: f"{k[2]}<br><sub>{k[1][:40]}</sub>")
     L += block("5. Ad — banding tempoh", ad, lambda k: f"{k[2]}<br><sub>{k[1][:40]}</sub>")
