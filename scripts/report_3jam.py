@@ -213,7 +213,7 @@ def main():
 
     if "--lead-xlsx" in sys.argv:
         from lead_monitor_report import build_section
-        L.append("\n" + build_section(sys.argv[sys.argv.index("--lead-xlsx") + 1]))
+        L.append("\n" + build_section(sys.argv[sys.argv.index("--lead-xlsx") + 1], now.replace(tzinfo=None)))
 
     md = "\n".join(L)
     if "--md" in sys.argv:
