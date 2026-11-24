@@ -73,6 +73,13 @@ def main():
         kw_counts = period_keyword_counts(lead_xlsx, now.replace(tzinfo=None))
         borang = group_counts(kw_counts)  # {window: {'FIZIKAL':n,'PCS':n,'TOTAL':n}}
 
+    UNRELIABLE_BORANG_WINDOWS = {"last_7d", "this_month"}  # tracking gsheet baru reliable dari semalam
+
+    def borang_val(window, key):
+        if window in UNRELIABLE_BORANG_WINDOWS:
+            return "—"
+        return str(borang[window][key])
+
     def campaign_group(name):
         # Padankan nama campaign dengan kumpulan keyword borang (FIZIKAL / PCS).
         u = name.upper()
@@ -130,7 +137,7 @@ def main():
           f"| Tempoh | Spend | Lead | CPL | CPM | CTR |{lb_col}", f"|---|---|---|---|---|---|{'---|' if borang else ''}"]
     for w, lab in WIN:
         t = total(w, True); cpm, ctr, _, cpl = met(t)
-        lb = f" {borang[w]['TOTAL']} |" if borang else ""
+        lb = f" {borang_val(w, 'TOTAL')} |" if borang else ""
         L.append(f"| {lab} | {rm(t['spend'])} | {t['lead']} | {rm(cpl)} | {rm(cpm)} | {pc(ctr)} |{lb}")
     td = total("today", False)
     L.append(f"\nSpend semua iklan hari ini (termasuk Awareness): **{rm(td['spend'])}**.\n")
@@ -149,7 +156,7 @@ def main():
         for w, lab in WIN:
             x = camp[c][w]; cpm, ctr, cpc, cpl = met(x)
             r_ = "— (tiada data per jam)" if aw and w in ("h3", "h3p") else res(x, aw)
-            lb = f" {borang[w][grp]} |" if (borang and grp) else ""
+            lb = f" {borang_val(w, grp)} |" if (borang and grp) else ""
             L.append(f"| {lab} | {rm(x['spend'])} | {x['imp']:,} | {rm(cpm)} | {x['clk']:,} | {pc(ctr)} | {rm(cpc)} | "
                      f"{r_} | {'—' if aw else rm(cpl)} |{lb}")
 
