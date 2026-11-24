@@ -2,7 +2,7 @@
 """Ringkasan lead borang dalaman (Google Sheet 'FORM LEADS', tab 'lead monitor')
 ikut keyword, untuk banding dengan lead yang Meta Ads report.
 
-Tempoh sama macam section Meta lain: 3 jam terkini, 3 jam sebelumnya, Hari ini, Semalam, 7 hari, Bulan ini.
+Tempoh sama macam section Meta lain: 6 jam terkini, 6 jam sebelumnya, Hari ini, Semalam, 7 hari, Bulan ini.
 
 Input: fail .xlsx penuh sheet tu (download terus, bukan sample).
 Timestamp dalam sheet adalah waktu Malaysia (Asia/Kuala_Lumpur), bukan UTC.
@@ -47,8 +47,8 @@ def period_keyword_counts(xlsx_path, now=None):
     now = now or dt.datetime.now()
     today = now.date()
     yesterday = today - dt.timedelta(days=1)
-    h3_from = now - dt.timedelta(hours=3)
-    h3p_from = now - dt.timedelta(hours=6)
+    h3_from = now - dt.timedelta(hours=6)
+    h3p_from = now - dt.timedelta(hours=12)
     seven_d_ago = today - dt.timedelta(days=7)
     month_start = today.replace(day=1)
 
@@ -125,7 +125,7 @@ def build_section(xlsx_path, now=None):
     L.append("")
     L.append("| Tempoh | Jumlah lead borang |")
     L.append("|---|---|")
-    L.append(f"| 3 jam terkini | {s('h3')} |")
+    L.append(f"| 6 jam terkini | {s('h3')} |")
     L.append(f"| Hari ini | {s('today')} |")
     L.append(f"| Semalam | {s('yesterday')} |")
     L.append(f"| 7 hari | {s('last_7d')} |")

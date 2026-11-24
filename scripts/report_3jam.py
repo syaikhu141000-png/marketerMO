@@ -1,5 +1,5 @@
-"""Report MO2 (setiap 3 jam): Campaign -> Ad set -> Ad, dengan 6 tempoh:
-3 jam terkini · 3 jam sebelumnya · Hari ini · Semalam · 7 hari (tidak termasuk hari ini) · Bulan ini.
+"""Report MO2 (setiap 6 jam): Campaign -> Ad set -> Ad, dengan 6 tempoh:
+6 jam terkini · 6 jam sebelumnya · Hari ini · Semalam · 7 hari (tidak termasuk hari ini) · Bulan ini.
 Metrik: Spend, Impressions, CPM, Klik, CTR, CPC, Lead, CPL (Awareness: ThruPlay).
 Lead = WhatsFormSubmit + Website lead (chat WhatsApp tidak dikira).
 Guna: python3 scripts/report_3jam.py [--md fail.md]
@@ -97,8 +97,8 @@ def main():
                                           "breakdowns": "hourly_stats_aggregated_by_advertiser_time_zone",
                                           "fields": "campaign_name,spend,impressions,inline_link_clicks,actions,video_thruplay_watched_actions"})
     hours = sorted({int(r["hourly_stats_aggregated_by_advertiser_time_zone"][:2]) for r in hourly})
-    last = hours[-3:] if hours else []
-    prev = [h for h in hours if h < (last[0] if last else 0)][-3:]
+    last = hours[-6:] if hours else []
+    prev = [h for h in hours if h < (last[0] if last else 0)][-6:]
     hlabel = lambda hs: f"{hs[0]:02d}:00–{hs[-1] + 1:02d}:00" if hs else "—"  # noqa: E731
 
     # agregat
@@ -115,7 +115,7 @@ def main():
             add(camp[r["campaign_name"]]["h3"], r)
         elif h in prev:
             add(camp[r["campaign_name"]]["h3p"], r)
-    WIN = [("h3", f"3 jam terkini ({hlabel(last)})"), ("h3p", f"3 jam sebelumnya ({hlabel(prev)})")] + PRESETS
+    WIN = [("h3", f"6 jam terkini ({hlabel(last)})"), ("h3p", f"6 jam sebelumnya ({hlabel(prev)})")] + PRESETS
 
     def total(window, leadgen_only):
         t = z()
