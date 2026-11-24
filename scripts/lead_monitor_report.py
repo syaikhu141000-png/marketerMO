@@ -5,7 +5,8 @@ ikut keyword, untuk banding dengan lead yang Meta Ads report.
 Input: fail .xlsx penuh sheet tu (download terus, bukan sample).
 Timestamp dalam sheet adalah waktu Malaysia (Asia/Kuala_Lumpur), bukan UTC.
 
-Guna: python3 lead_monitor_report.py <path_ke_xlsx> [--md output.md]
+Guna standalone: python3 lead_monitor_report.py <path_ke_xlsx> [--md output.md]
+Guna sebagai modul: from lead_monitor_report import build_section
 """
 import argparse
 import datetime as dt
@@ -14,23 +15,17 @@ import sys
 import openpyxl
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("xlsx_path")
-    ap.add_argument("--md", default=None)
-    ap.add_argument("--now", default=None, help="Override 'sekarang' (ISO, waktu Malaysia) - untuk testing")
-    args = ap.parse_args()
-
-    wb = openpyxl.load_workbook(args.xlsx_path, read_only=True, data_only=True)
+def build_section(xlsx_path, now=None):
+    """Pulangkan serpihan markdown "## Lead Monitor ..." dari fail .xlsx sheet FORM LEADS."""
+    wb = openpyxl.load_workbook(xlsx_path, read_only=True, data_only=True)
     if "lead monitor" not in wb.sheetnames:
-        print("ERROR: tab 'lead monitor' tak wujud dalam sheet ni.", file=sys.stderr)
-        sys.exit(1)
+        return "## Lead Monitor (borang dalaman — Google Sheet)\n- ERROR: tab 'lead monitor' tak wujud dalam sheet ni.\n"
     ws = wb["lead monitor"]
     rows = [r for r in ws.iter_rows(values_only=True) if r and r[0] is not None]
     if not rows or rows[0][0] == "TIME":
         rows = rows[1:]
 
-    now = dt.datetime.fromisoformat(args.now) if args.now else dt.datetime.now()
+    now = now or dt.datetime.now()
     today = now.date()
     yesterday = today - dt.timedelta(days=1)
     three_h_ago = now - dt.timedelta(hours=3)
@@ -101,7 +96,18 @@ def main():
         L.append("")
         L.append(f"_Nota: {bad} baris diabaikan sebab format masa tak sah._")
 
-    out = "\n".join(L) + "\n"
+    return "\n".join(L) + "\n"
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("xlsx_path")
+    ap.add_argument("--md", default=None)
+    ap.add_argument("--now", default=None, help="Override 'sekarang' (ISO, waktu Malaysia) - untuk testing")
+    args = ap.parse_args()
+
+    now = dt.datetime.fromisoformat(args.now) if args.now else None
+    out = build_section(args.xlsx_path, now)
     if args.md:
         with open(args.md, "w") as f:
             f.write(out)

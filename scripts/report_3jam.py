@@ -12,7 +12,6 @@ from meta_api import cfg, get_all
 
 LEAD = {"lead", "onsite_conversion.lead_grouped", "offsite_conversion.fb_pixel_lead", "onsite_web_lead"}
 FORM = "offsite_conversion.fb_pixel_custom"
-BUDGET_CAP = 300
 FIELDS = "campaign_name,adset_name,ad_name,spend,impressions,inline_link_clicks,actions,video_thruplay_watched_actions"
 PRESETS = [("today", "Hari ini"), ("yesterday", "Semalam"), ("last_7d", "7 hari"), ("this_month", "Bulan ini")]
 
@@ -116,8 +115,7 @@ def main():
         t = total(w, True); cpm, ctr, _, cpl = met(t)
         L.append(f"| {lab} | {rm(t['spend'])} | {t['lead']} | {rm(cpl)} | {rm(cpm)} | {pc(ctr)} |")
     td = total("today", False)
-    L.append(f"\nSpend semua iklan hari ini (termasuk Awareness): **{rm(td['spend'])}** daripada had RM{BUDGET_CAP} "
-             f"({td['spend'] / BUDGET_CAP * 100:.0f}%).\n")
+    L.append(f"\nSpend semua iklan hari ini (termasuk Awareness): **{rm(td['spend'])}**.\n")
 
     # 1. Campaign
     L.append("## 1. Ikut campaign")
@@ -175,11 +173,14 @@ def main():
             warn.append(f"- 🔴 **{k[2]}**: spend {rm(t['spend'])} hari ini, **0 lead**")
         elif cpl and cpl >= 30 and t["spend"] >= 30:
             warn.append(f"- 🟡 **{k[2]}**: CPL hari ini {rm(cpl)}")
-    if td["spend"] > BUDGET_CAP:
-        warn.append(f"- 🔴 Spend hari ini {rm(td['spend'])} melebihi had RM{BUDGET_CAP}")
     L += ["\n## Amaran"] + (warn or ["- Tiada amaran setakat ini."])
     L.append("\n_🟢 CPL ≤ RM15 · 🟡 < RM30 · 🔴 ≥ RM30 atau 0 lead dgn spend ≥ RM30 · ⚪ Awareness / data belum cukup. "
              "Report sahaja — tiada perubahan dibuat di Meta._")
+
+    if "--lead-xlsx" in sys.argv:
+        from lead_monitor_report import build_section
+        L.append("\n" + build_section(sys.argv[sys.argv.index("--lead-xlsx") + 1]))
+
     md = "\n".join(L)
     if "--md" in sys.argv:
         open(sys.argv[sys.argv.index("--md") + 1], "w").write(md)
