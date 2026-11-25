@@ -230,6 +230,7 @@ def main():
             "cpl_today": round(cpl, 2) if cpl is not None else None,
             "cpm_today": round(cpm, 2) if cpm is not None else None,
             "ctr_today": round(ctr, 2) if ctr is not None else None,
+            "leads_borang_today": borang["today"]["TOTAL"] if borang else None,
             "updated_at": now.isoformat(),
         }
         open(sys.argv[sys.argv.index("--live-json") + 1], "w").write(json.dumps(live))

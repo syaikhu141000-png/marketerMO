@@ -846,7 +846,8 @@ function render3(){
   function windowCell(rd, winKey){
     if(winKey==='today'){
       if(!LIVE) return '<td class="num">—</td>';
-      if(rd.isLeads) return '<td class="num">WhatsForm+Website: <b>'+fmtN(LIVE.leads_today)+'</b></td>';
+      if(rd.isLeads) return '<td class="num">WhatsForm+Website: <b>'+fmtN(LIVE.leads_today)+'</b>'+
+        (LIVE.leads_borang_today!=null ? '<br><small style="color:var(--muted)">Borang (gsheet): '+fmtN(LIVE.leads_borang_today)+'</small>' : '')+'</td>';
       if(rd.isCpl){
         const v = LIVE.cpl_today;
         if(v==null) return '<td class="num">—</td>';
@@ -1630,7 +1631,8 @@ function renderCombined(){
   let t = '<div class="tablewrap" style="margin-top:14px"><table><thead><tr><th>Tempoh</th><th class="num">Spend</th><th class="num">Lead</th><th class="num">CPL</th><th class="num">Impressions</th><th class="num">CTR</th><th class="num">CPM</th></tr></thead><tbody>';
   if(LIVE){
     t += '<tr style="background:var(--card2)"><td>⚡ Hari ini <small style="color:var(--muted)">(live, kemaskini tiap ~6 jam)</small></td>'+
-      '<td class="num">'+fmtRM(LIVE.spend_today)+'</td><td class="num">'+fmtN(LIVE.leads_today)+'</td>'+
+      '<td class="num">'+fmtRM(LIVE.spend_today)+'</td><td class="num">'+fmtN(LIVE.leads_today)+
+      (LIVE.leads_borang_today!=null ? ' <small style="color:var(--muted)">(borang: '+fmtN(LIVE.leads_borang_today)+')</small>' : '')+'</td>'+
       '<td class="num">'+(LIVE.cpl_today==null?'—':fmtRM(LIVE.cpl_today))+'</td><td class="num">—</td>'+
       '<td class="num">'+(LIVE.ctr_today==null?'—':LIVE.ctr_today.toFixed(2)+'%')+'</td>'+
       '<td class="num">'+(LIVE.cpm_today==null?'—':fmtRM(LIVE.cpm_today))+'</td></tr>';
