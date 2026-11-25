@@ -827,7 +827,8 @@ function render3(){
 
   s.insertAdjacentHTML('beforeend', buildExecSummary());
 
-  const wins = [['Yesterday','yesterday'],['3D','3D'],['7D','7D'],['14D','14D'],['30D','30D']];
+  const wins = (LIVE && currentAcct==='mo2') ? [['Hari ini ⚡','today'],['Yesterday','yesterday'],['3D','3D'],['7D','7D'],['14D','14D'],['30D','30D']]
+                                              : [['Yesterday','yesterday'],['3D','3D'],['7D','7D'],['14D','14D'],['30D','30D']];
   const m = d.metrics;
   const ty = d.total_this_year || {};
   const tyTypes = ty.conversion_types || []; // auto-detect: whatever conversion types exist here get rendered
@@ -843,6 +844,18 @@ function render3(){
   const fmtFor = (rd,v)=> (rd.key==='spend'||rd.isCpl) ? fmtRM(v) : rd.isFreq ? fmtX(v) : fmtN(v);
 
   function windowCell(rd, winKey){
+    if(winKey==='today'){
+      if(!LIVE) return '<td class="num">—</td>';
+      if(rd.isLeads) return '<td class="num">WhatsForm+Website: <b>'+fmtN(LIVE.leads_today)+'</b></td>';
+      if(rd.isCpl){
+        const v = LIVE.cpl_today;
+        if(v==null) return '<td class="num">—</td>';
+        const ev = cplEval('yesterday', v); // guna rule OLD (7D/14D) sebagai anggaran terdekat
+        return '<td class="num '+ev.cls+'">'+ev.dot+' '+fmtRM(v)+'</td>';
+      }
+      if(rd.key==='spend') return '<td class="num">'+fmtRM(LIVE.spend_today)+'</td>';
+      return '<td class="num">—</td>'; // impressions/reach/frequency tak dikira dlm payload live
+    }
     const mo = m[winKey] || {};
     if(rd.isLeads){
       const srcs = leadSourcesFor(mo);
