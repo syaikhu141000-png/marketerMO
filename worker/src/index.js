@@ -1,4 +1,7 @@
 // Cloudflare Worker: Dashboard MO2 (Minda Optima 2 — Pantas Baca Daily Monitoring)
+// Khas untuk monitor iklan Meta Ads harian SAHAJA. Report Marketing V2 (report-v2) kini
+// ada Worker + KV sendiri sepenuhnya berasingan (repo Dashboard-MO-v3, "report-v2-api") —
+// tiada kaitan dengan Worker ni lagi.
 //
 //  GET  /                -> dashboard (HTML, rupa sama Dashboard-MO-v3)
 //  GET  /data.json       -> data dashboard terkini (dari KV)
@@ -90,6 +93,7 @@ export default {
       if (!env.REFRESH_KEY || req.headers.get("x-refresh-key") !== env.REFRESH_KEY) return json({ error: "X-Refresh-Key salah." }, 401);
       return json(await refresh(env, "manual"));
     }
+
     if (p === "/docs" || p === "/api/docs" || p === "/README.md")
       return new Response(DOCS_MD, { headers: { "content-type": "text/markdown; charset=utf-8", ...CORS } });
 

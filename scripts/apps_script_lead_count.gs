@@ -1,9 +1,10 @@
 /**
  * Lead Count API — Minda Optima (Google Apps Script, Web App)
- * Kira lead SEBENAR dari Google Sheet lead (WhatsForm / website form) ikut tarikh, jam & keyword.
+ * Kira lead SEBENAR dari Google Sheet "FORM LEADS" (tab "lead monitor") ikut tarikh, jam & keyword.
  * TIADA data peribadi (nama / no. telefon) keluar — hanya bilangan.
  *
- * Pasang: Sheet lead -> Extensions -> Apps Script -> paste fail ni -> ubah CONFIG -> Deploy -> New deployment
+ * Pasang: Buka Sheet "FORM LEADS" -> Extensions -> Apps Script -> paste fail ni (ganti semua)
+ *         -> tukar CONFIG.KEY kepada perkataan rawak -> Deploy -> New deployment
  *         -> Web app, Execute as: Me, Who has access: Anyone -> salin URL Web app.
  * Uji:    <URL>?key=<KEY>   (mesti keluar JSON {"ok":true,...})
  */
@@ -13,8 +14,7 @@ const CONFIG = {
   DAYS: 40,                               // berapa hari ke belakang
   SOURCES: [
     // Satu baris untuk setiap tab lead. Nama kolum mesti SAMA dengan baris tajuk (baris 1) dalam tab.
-    { sheet: 'WhatsForm', colTime: 'Timestamp', colKeyword: 'Keyword', colPhone: 'Phone', source: 'whatsform' },
-    { sheet: 'Website',   colTime: 'Timestamp', colKeyword: 'Keyword', colPhone: 'Phone', source: 'website' },
+    { sheet: 'lead monitor', colTime: 'TIME', colKeyword: 'KEYWORD', colPhone: 'PHONE', source: 'form' },
   ],
   // Optional: kolum status sales (biar '' kalau tiada). Nilai yang dikira booking / enroll:
   COL_STATUS: '',

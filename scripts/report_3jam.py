@@ -1,5 +1,5 @@
-"""Report MO2 (setiap 3 jam): Campaign -> Ad set -> Ad, dengan 6 tempoh:
-3 jam terkini · 3 jam sebelumnya · Hari ini · Semalam · 7 hari (tidak termasuk hari ini) · Bulan ini.
+"""Report MO2 (setiap 6 jam): Campaign -> Ad set -> Ad, dengan 6 tempoh:
+6 jam terkini · 6 jam sebelumnya · Hari ini · Semalam · 7 hari (tidak termasuk hari ini) · Bulan ini.
 Metrik: Spend, Impressions, CPM, Klik, CTR, CPC, Lead, CPL (Awareness: ThruPlay).
 Lead = WhatsFormSubmit + Website lead (chat WhatsApp tidak dikira).
 Guna: python3 scripts/report_3jam.py [--md fail.md]
@@ -12,7 +12,6 @@ from meta_api import cfg, get_all
 
 LEAD = {"lead", "onsite_conversion.lead_grouped", "offsite_conversion.fb_pixel_lead", "onsite_web_lead"}
 FORM = "offsite_conversion.fb_pixel_custom"
-BUDGET_CAP = 300
 FIELDS = "campaign_name,adset_name,ad_name,spend,impressions,inline_link_clicks,actions,video_thruplay_watched_actions"
 PRESETS = [("today", "Hari ini"), ("yesterday", "Semalam"), ("last_7d", "7 hari"), ("this_month", "Bulan ini")]
 
@@ -66,6 +65,29 @@ def res(x, aw):
 def main():
     acc = cfg()["META_AD_ACCOUNT_ID"]
     now = datetime.now(timezone(timedelta(hours=8)))
+
+    lead_xlsx = sys.argv[sys.argv.index("--lead-xlsx") + 1] if "--lead-xlsx" in sys.argv else None
+    borang = None
+    if lead_xlsx:
+        from lead_monitor_report import period_keyword_counts, group_counts, group_of
+        kw_counts = period_keyword_counts(lead_xlsx, now.replace(tzinfo=None))
+        borang = group_counts(kw_counts)  # {window: {'FIZIKAL':n,'PCS':n,'TOTAL':n}}
+
+    UNRELIABLE_BORANG_WINDOWS = {"last_7d", "this_month"}  # tracking gsheet baru reliable dari semalam
+
+    def borang_val(window, key):
+        if window in UNRELIABLE_BORANG_WINDOWS:
+            return "—"
+        return str(borang[window][key])
+
+    def campaign_group(name):
+        # Padankan nama campaign dengan kumpulan keyword borang (FIZIKAL / PCS).
+        u = name.upper()
+        if "FIZIKAL" in u:
+            return "FIZIKAL"
+        if "PCS" in u:
+            return "PCS"
+        return None
     # data ikut tempoh (peringkat ad)
     D = {}
     for p, _ in PRESETS:
@@ -75,8 +97,8 @@ def main():
                                           "breakdowns": "hourly_stats_aggregated_by_advertiser_time_zone",
                                           "fields": "campaign_name,spend,impressions,inline_link_clicks,actions,video_thruplay_watched_actions"})
     hours = sorted({int(r["hourly_stats_aggregated_by_advertiser_time_zone"][:2]) for r in hourly})
-    last = hours[-3:] if hours else []
-    prev = [h for h in hours if h < (last[0] if last else 0)][-3:]
+    last = hours[-6:] if hours else []
+    prev = [h for h in hours if h < (last[0] if last else 0)][-6:]
     hlabel = lambda hs: f"{hs[0]:02d}:00–{hs[-1] + 1:02d}:00" if hs else "—"  # noqa: E731
 
     # agregat
@@ -93,7 +115,7 @@ def main():
             add(camp[r["campaign_name"]]["h3"], r)
         elif h in prev:
             add(camp[r["campaign_name"]]["h3p"], r)
-    WIN = [("h3", f"3 jam terkini ({hlabel(last)})"), ("h3p", f"3 jam sebelumnya ({hlabel(prev)})")] + PRESETS
+    WIN = [("h3", f"6 jam terkini ({hlabel(last)})"), ("h3p", f"6 jam sebelumnya ({hlabel(prev)})")] + PRESETS
 
     def total(window, leadgen_only):
         t = z()
@@ -110,14 +132,15 @@ def main():
          "7 hari = 7 hari penuh sebelum hari ini. Bulan ini termasuk hari ini.\n"]
 
     # Ringkasan
+    lb_col = " Lead borang (gsheet) |" if borang else ""
     L += ["## Ringkasan (campaign lead-gen, tanpa Awareness)",
-          "| Tempoh | Spend | Lead | CPL | CPM | CTR |", "|---|---|---|---|---|---|"]
+          f"| Tempoh | Spend | Lead | CPL | CPM | CTR |{lb_col}", f"|---|---|---|---|---|---|{'---|' if borang else ''}"]
     for w, lab in WIN:
         t = total(w, True); cpm, ctr, _, cpl = met(t)
-        L.append(f"| {lab} | {rm(t['spend'])} | {t['lead']} | {rm(cpl)} | {rm(cpm)} | {pc(ctr)} |")
+        lb = f" {borang_val(w, 'TOTAL')} |" if borang else ""
+        L.append(f"| {lab} | {rm(t['spend'])} | {t['lead']} | {rm(cpl)} | {rm(cpm)} | {pc(ctr)} |{lb}")
     td = total("today", False)
-    L.append(f"\nSpend semua iklan hari ini (termasuk Awareness): **{rm(td['spend'])}** daripada had RM{BUDGET_CAP} "
-             f"({td['spend'] / BUDGET_CAP * 100:.0f}%).\n")
+    L.append(f"\nSpend semua iklan hari ini (termasuk Awareness): **{rm(td['spend'])}**.\n")
 
     # 1. Campaign
     L.append("## 1. Ikut campaign")
@@ -125,14 +148,17 @@ def main():
         if camp[c]["today"]["spend"] <= 0 and camp[c]["yesterday"]["spend"] <= 0:
             continue  # campaign tak aktif (cth TESTING 2 lama)
         aw = aware(c)
+        grp = None if aw else campaign_group(c)
+        lb_col = " Lead borang (gsheet) |" if (borang and grp) else ""
         L += [f"\n**{light(camp[c]['today'], aw)} {c}**", "",
-              f"| Tempoh | Spend | Impr. | CPM | Klik | CTR | CPC | {'ThruPlay' if aw else 'Lead'} | {'—' if aw else 'CPL'} |",
-              "|---|---|---|---|---|---|---|---|---|"]
+              f"| Tempoh | Spend | Impr. | CPM | Klik | CTR | CPC | {'ThruPlay' if aw else 'Lead'} | {'—' if aw else 'CPL'} |{lb_col}",
+              f"|---|---|---|---|---|---|---|---|---|{'---|' if lb_col else ''}"]
         for w, lab in WIN:
             x = camp[c][w]; cpm, ctr, cpc, cpl = met(x)
             r_ = "— (tiada data per jam)" if aw and w in ("h3", "h3p") else res(x, aw)
+            lb = f" {borang_val(w, grp)} |" if (borang and grp) else ""
             L.append(f"| {lab} | {rm(x['spend'])} | {x['imp']:,} | {rm(cpm)} | {x['clk']:,} | {pc(ctr)} | {rm(cpc)} | "
-                     f"{r_} | {'—' if aw else rm(cpl)} |")
+                     f"{r_} | {'—' if aw else rm(cpl)} |{lb}")
 
     # 2. Ad set & 3. Ad
     def block(title, data, key_fmt):
@@ -149,18 +175,24 @@ def main():
                        f"{rm(s['spend'])} · {res(s, aw)} · {'—' if aw else rm(met(s)[3])} | "
                        f"{res(m_, aw)} · {'—' if aw else rm(met(m_)[3])} |")
         return out
-    def today_detail(title, data, key_fmt):
-        out = [f"\n## {title}", "| | Nama | Spend | Impr. | CPM | Klik | CTR | CPC | Lead | CPL |",
-               "|---|---|---|---|---|---|---|---|---|---|"]
+    def today_detail(title, data, key_fmt, match_borang=False):
+        lb_col = " Lead borang (gsheet) |" if (borang and match_borang) else ""
+        out = [f"\n## {title}", f"| | Nama | Spend | Impr. | CPM | Klik | CTR | CPC | Lead | CPL |{lb_col}",
+               f"|---|---|---|---|---|---|---|---|---|---|{'---|' if lb_col else ''}"]
         for k in sorted(data, key=lambda k: (k[0], -data[k]["today"]["spend"])):
             t = data[k]["today"]
             if t["spend"] <= 0:
                 continue
             aw = aware(k[0]); cpm, ctr, cpc, cpl = met(t)
+            lb = ""
+            if lb_col:
+                from lead_monitor_report import match_adset_keyword
+                n = match_adset_keyword(k[1], kw_counts["today"])
+                lb = f" {n if n is not None else '—'} |"
             out.append(f"| {light(t, aw)} | {key_fmt(k)} | {rm(t['spend'])} | {t['imp']:,} | {rm(cpm)} | {t['clk']:,} | {pc(ctr)} | "
-                       f"{rm(cpc)} | {res(t, aw)} | {'—' if aw else rm(cpl)} |")
+                       f"{rm(cpc)} | {res(t, aw)} | {'—' if aw else rm(cpl)} |{lb}")
         return out
-    L += today_detail("2. Ad set — Hari ini (detail)", aset, lambda k: f"{k[1]}<br><sub>{k[0][:30]}</sub>")
+    L += today_detail("2. Ad set — Hari ini (detail)", aset, lambda k: f"{k[1]}<br><sub>{k[0][:30]}</sub>", match_borang=True)
     L += block("3. Ad set — banding tempoh", aset, lambda k: f"{k[1]}<br><sub>{k[0][:30]}</sub>")
     L += today_detail("4. Ad — Hari ini (detail)", ad, lambda k: f"{k[2]}<br><sub>{k[1][:40]}</sub>")
     L += block("5. Ad — banding tempoh", ad, lambda k: f"{k[2]}<br><sub>{k[1][:40]}</sub>")
@@ -175,11 +207,14 @@ def main():
             warn.append(f"- 🔴 **{k[2]}**: spend {rm(t['spend'])} hari ini, **0 lead**")
         elif cpl and cpl >= 30 and t["spend"] >= 30:
             warn.append(f"- 🟡 **{k[2]}**: CPL hari ini {rm(cpl)}")
-    if td["spend"] > BUDGET_CAP:
-        warn.append(f"- 🔴 Spend hari ini {rm(td['spend'])} melebihi had RM{BUDGET_CAP}")
     L += ["\n## Amaran"] + (warn or ["- Tiada amaran setakat ini."])
     L.append("\n_🟢 CPL ≤ RM15 · 🟡 < RM30 · 🔴 ≥ RM30 atau 0 lead dgn spend ≥ RM30 · ⚪ Awareness / data belum cukup. "
              "Report sahaja — tiada perubahan dibuat di Meta._")
+
+    if "--lead-xlsx" in sys.argv:
+        from lead_monitor_report import build_section
+        L.append("\n" + build_section(sys.argv[sys.argv.index("--lead-xlsx") + 1], now.replace(tzinfo=None)))
+
     md = "\n".join(L)
     if "--md" in sys.argv:
         open(sys.argv[sys.argv.index("--md") + 1], "w").write(md)
