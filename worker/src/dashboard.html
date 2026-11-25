@@ -865,8 +865,10 @@ function render3(){
     const mo = m[winKey] || {};
     if(rd.isLeads){
       const srcs = leadSourcesFor(mo);
-      if(!srcs.length) return '<td class="num">—</td>';
-      return '<td class="num">'+srcs.map(x=>x.label+': <b>'+fmtN(x.value)+'</b>').join('<br>')+'</td>';
+      const borangLine = (winKey==='yesterday' && LIVE && LIVE.leads_borang_yesterday!=null)
+        ? '<br><small style="color:var(--muted)">Borang (gsheet): '+fmtN(LIVE.leads_borang_yesterday)+'</small>' : '';
+      if(!srcs.length) return borangLine ? '<td class="num">—'+borangLine+'</td>' : '<td class="num">—</td>';
+      return '<td class="num">'+srcs.map(x=>x.label+': <b>'+fmtN(x.value)+'</b>').join('<br>')+borangLine+'</td>';
     }
     if(rd.isCpl){
       const v = mo.cpl;
