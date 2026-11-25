@@ -223,10 +223,25 @@ def main():
         import json
         td = total("today", True)
         cpm, ctr, _, cpl = met(td)
+        wf_today = web_today = 0
+        for r in D["today"]:
+            if aware(r["campaign_name"]):
+                continue
+            w = f = 0
+            for a in r.get("actions") or []:
+                v = int(float(a["value"]))
+                if a["action_type"] in LEAD:
+                    w = max(w, v)
+                elif a["action_type"] == FORM:
+                    f = v
+            wf_today += f
+            web_today += w
         live = {
             "ok": True,
             "spend_today": round(td["spend"], 2),
             "leads_today": td["lead"],
+            "leads_today_whatsform": wf_today,
+            "leads_today_website": web_today,
             "cpl_today": round(cpl, 2) if cpl is not None else None,
             "cpm_today": round(cpm, 2) if cpm is not None else None,
             "ctr_today": round(ctr, 2) if ctr is not None else None,

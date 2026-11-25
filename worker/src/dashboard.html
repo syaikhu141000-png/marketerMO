@@ -846,8 +846,13 @@ function render3(){
   function windowCell(rd, winKey){
     if(winKey==='today'){
       if(!LIVE) return '<td class="num">—</td>';
-      if(rd.isLeads) return '<td class="num">WhatsForm+Website: <b>'+fmtN(LIVE.leads_today)+'</b>'+
-        (LIVE.leads_borang_today!=null ? '<br><small style="color:var(--muted)">Borang (gsheet): '+fmtN(LIVE.leads_borang_today)+'</small>' : '')+'</td>';
+      if(rd.isLeads){
+        const html = (LIVE.leads_today_whatsform!=null && LIVE.leads_today_website!=null)
+          ? 'WhatsFormSubmit: <b>'+fmtN(LIVE.leads_today_whatsform)+'</b><br>Website: <b>'+fmtN(LIVE.leads_today_website)+'</b>'
+          : 'WhatsForm+Website: <b>'+fmtN(LIVE.leads_today)+'</b>';
+        return '<td class="num">'+html+
+          (LIVE.leads_borang_today!=null ? '<br><small style="color:var(--muted)">Borang (gsheet): '+fmtN(LIVE.leads_borang_today)+'</small>' : '')+'</td>';
+      }
       if(rd.isCpl){
         const v = LIVE.cpl_today;
         if(v==null) return '<td class="num">—</td>';
