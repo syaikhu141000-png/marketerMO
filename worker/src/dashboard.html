@@ -337,6 +337,17 @@ async function fetchAll(){
   if(!Object.keys(DATASETS).length) throw new Error('data.json tiada data account');
 }
 async function fetchData(){ await fetchAll(); return DATASETS[currentAcct] || DATASETS.mo2; }
+
+/* "Hari ini" (live): dikemaskini setiap ~6 jam oleh scheduled task report email, berasingan
+   dari data.json (yang dikemaskini sekali sehari 5:08 pagi). Lihat /api/live. */
+let LIVE = null;
+async function fetchLive(){
+  try{
+    const r = await fetch('/api/live?_=' + Date.now());
+    const j = await r.json();
+    LIVE = (j && j.ok) ? j : null;
+  }catch(e){ LIVE = null; }
+}
 /* ---------- Normalizer ----------
    Scheduled task kadang-kadang tukar bentuk JSON (nama key / object vs array).
    Fungsi ni tukar semua variasi yang diketahui kepada bentuk yang renderer faham, supaya dashboard tak crash. */
@@ -1604,11 +1615,19 @@ function renderCombined(){
 
   // --- Window table
   let t = '<div class="tablewrap" style="margin-top:14px"><table><thead><tr><th>Tempoh</th><th class="num">Spend</th><th class="num">Lead</th><th class="num">CPL</th><th class="num">Impressions</th><th class="num">CTR</th><th class="num">CPM</th></tr></thead><tbody>';
+  if(LIVE){
+    t += '<tr style="background:var(--card2)"><td>⚡ Hari ini <small style="color:var(--muted)">(live, kemaskini tiap ~6 jam)</small></td>'+
+      '<td class="num">'+fmtRM(LIVE.spend_today)+'</td><td class="num">'+fmtN(LIVE.leads_today)+'</td>'+
+      '<td class="num">'+(LIVE.cpl_today==null?'—':fmtRM(LIVE.cpl_today))+'</td><td class="num">—</td>'+
+      '<td class="num">'+(LIVE.ctr_today==null?'—':LIVE.ctr_today.toFixed(2)+'%')+'</td>'+
+      '<td class="num">'+(LIVE.cpm_today==null?'—':fmtRM(LIVE.cpm_today))+'</td></tr>';
+  }
   CMB_WINDOWS.forEach(([k,l])=>{
     const o = cmbSum(list,k);
     t += '<tr><td>'+l+'</td><td class="num">'+fmtRM(o.spend)+'</td><td class="num">'+fmtN(o.leads)+'</td><td class="num">'+fmtRM(o.cpl)+'</td><td class="num">'+fmtN(o.impressions)+'</td><td class="num">'+(o.ctr==null?'—':o.ctr.toFixed(2)+'%')+'</td><td class="num">'+fmtRM(o.cpm)+'</td></tr>';
   });
   t += '</tbody></table></div>';
+  if(LIVE) t += '<div style="font-size:.75rem;color:var(--muted);margin-top:4px">⚡ "Hari ini" dari report email 6-jam (akaun Minda Optima 2 sahaja, tak termasuk Awareness) — kemaskini terakhir '+esc((LIVE.updated_at||'').replace('T',' ').slice(0,16))+'</div>';
   s.insertAdjacentHTML('beforeend', t);
   app.appendChild(s);
 
@@ -1786,7 +1805,7 @@ $('#btnRefresh').addEventListener('click', async ()=>{
   const msg=$('#refreshMsg');
   msg.textContent='⏳ Menarik data terkini...';
   try{
-    await fetchAll();
+    await Promise.all([fetchAll(), fetchLive()]);
     renderCurrent();
     msg.textContent='✓ Dikemaskini ('+new Date().toLocaleTimeString('en-GB')+')';
   }catch(e){
@@ -1808,6 +1827,7 @@ $('#btnRefresh').addEventListener('click', async ()=>{
     app.innerHTML = '<div style="padding:40px;text-align:center;color:var(--red)">⚠ Gagal muat data.<br>Pastikan fail data.json wujud dlm folder sama dgn dashboard.html.<br><small>'+e.message+'</small></div>';
     return;
   }
+  await fetchLive(); // tak kritikal — "Hari ini" row hilang je kalau gagal
   if(new URLSearchParams(window.location.search).get('mo2_calc_import') && DATASETS.mo2) currentAcct='mo2';
   renderCurrent();
   importCalculationFromLink(); // selepas render() — pastikan #savedCalcList wujud dlm DOM sebenar

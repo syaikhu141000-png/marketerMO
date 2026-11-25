@@ -218,6 +218,22 @@ def main():
     md = "\n".join(L)
     if "--md" in sys.argv:
         open(sys.argv[sys.argv.index("--md") + 1], "w").write(md)
+
+    if "--live-json" in sys.argv:
+        import json
+        td = total("today", True)
+        cpm, ctr, _, cpl = met(td)
+        live = {
+            "ok": True,
+            "spend_today": round(td["spend"], 2),
+            "leads_today": td["lead"],
+            "cpl_today": round(cpl, 2) if cpl is not None else None,
+            "cpm_today": round(cpm, 2) if cpm is not None else None,
+            "ctr_today": round(ctr, 2) if ctr is not None else None,
+            "updated_at": now.isoformat(),
+        }
+        open(sys.argv[sys.argv.index("--live-json") + 1], "w").write(json.dumps(live))
+
     print(md)
 
 
