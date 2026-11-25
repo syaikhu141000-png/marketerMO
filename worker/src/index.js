@@ -81,6 +81,7 @@ export default {
       return new Response(d, { headers: { ...JSON_HEADERS, ...CORS } });
     }
     if (p === "/api/status") return json(JSON.parse((await env.KV.get("last_run")) || '{"ok":null,"note":"belum pernah run"}'));
+    if (p === "/api/live") return new Response((await env.KV.get("live")) || '{"ok":false,"note":"belum pernah dikemaskini"}', { headers: { ...JSON_HEADERS, ...CORS } });
 
     if (p === "/api/notes" && req.method === "GET") return new Response((await env.KV.get("notes")) || "{}", { headers: { ...JSON_HEADERS, ...CORS } });
     if (p === "/api/notes" && req.method === "POST") return addNote(env, req);
@@ -92,7 +93,7 @@ export default {
     if (p === "/docs" || p === "/api/docs" || p === "/README.md")
       return new Response(DOCS_MD, { headers: { "content-type": "text/markdown; charset=utf-8", ...CORS } });
 
-    return json({ error: "Tidak dijumpai", routes: ["/", "/data.json", "/api/data", "/api/status", "/api/notes", "/docs"] }, 404);
+    return json({ error: "Tidak dijumpai", routes: ["/", "/data.json", "/api/data", "/api/live", "/api/status", "/api/notes", "/docs"] }, 404);
   },
 
   async scheduled(event, env, ctx) {
