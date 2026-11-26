@@ -8,6 +8,7 @@
 //  GET  /api/data        -> sama, dengan CORS (untuk staff portal / sistem lain)
 //  GET  /api/daily       -> data harian setiap ad (untuk pemilih tarikh / sistem lain)
 //  GET  /api/status      -> status run terakhir (bila, berjaya/gagal, berapa panggilan API)
+//  GET  /api/widget      -> teks ringkas (plain text) untuk widget phone, dari KV "live"
 //  GET  /api/notes       -> semua notes/remark { key: [ {ts, text}, ... ] }
 //  POST /api/notes       -> tambah satu note  body: {"key":"campaign:NAMA","text":"..."}
 //  POST /api/refresh     -> tarik data dlm Worker (header X-Refresh-Key wajib; mungkin kena had CPU pelan percuma)
@@ -85,6 +86,19 @@ export default {
     }
     if (p === "/api/status") return json(JSON.parse((await env.KV.get("last_run")) || '{"ok":null,"note":"belum pernah run"}'));
     if (p === "/api/live") return new Response((await env.KV.get("live")) || '{"ok":false,"note":"belum pernah dikemaskini"}', { headers: { ...JSON_HEADERS, ...CORS } });
+    if (p === "/api/widget") {
+      const raw = await env.KV.get("live");
+      const l = raw ? JSON.parse(raw) : null;
+      const txt = !l || !l.ok
+        ? "MO2: data belum ada"
+        : `MO2 Hari ini\n` +
+          `Spend: RM${l.spend_today?.toFixed(2)}\n` +
+          `Lead: ${l.leads_today} (WF ${l.leads_today_whatsform} · Web ${l.leads_today_website})\n` +
+          `CPL: ${l.cpl_today != null ? "RM" + l.cpl_today.toFixed(2) : "—"}\n` +
+          `Borang: ${l.leads_borang_today ?? "—"}\n` +
+          `Update: ${(l.updated_at || "").slice(11, 16)}`;
+      return new Response(txt, { headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store", ...CORS } });
+    }
 
     if (p === "/api/notes" && req.method === "GET") return new Response((await env.KV.get("notes")) || "{}", { headers: { ...JSON_HEADERS, ...CORS } });
     if (p === "/api/notes" && req.method === "POST") return addNote(env, req);
@@ -97,7 +111,7 @@ export default {
     if (p === "/docs" || p === "/api/docs" || p === "/README.md")
       return new Response(DOCS_MD, { headers: { "content-type": "text/markdown; charset=utf-8", ...CORS } });
 
-    return json({ error: "Tidak dijumpai", routes: ["/", "/data.json", "/api/data", "/api/live", "/api/status", "/api/notes", "/docs"] }, 404);
+    return json({ error: "Tidak dijumpai", routes: ["/", "/data.json", "/api/data", "/api/live", "/api/widget", "/api/status", "/api/notes", "/docs"] }, 404);
   },
 
   async scheduled(event, env, ctx) {
